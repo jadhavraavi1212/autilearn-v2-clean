@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutiLearn – Parent Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <a href="../index.html" class="nav-logo">🌈 AutiLearn</a>
+  <div class="nav-links">
+    <a href="../index.html">🏠 Home</a>
+    <a href="login-child.html">Child Login</a>
+    <a href="register.html" class="nav-register">Register</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="card">
+    <h1 class="card-title">👨‍👩‍👧 Parent Login</h1>
+    <p class="card-sub">Monitor your child's learning journey 💙</p>
+
+    <div id="alertBox"></div>
+
+    <div class="form-group">
+      <label>📧 Email Address</label>
+      <input type="email" id="email" placeholder="parent@email.com"/>
+    </div>
+    <div class="form-group">
+      <label>🔒 Password</label>
+      <input type="password" id="password" placeholder="Your password"/>
+    </div>
+    <button class="btn btn-secondary mt-2" onclick="parentLogin()">🔐 Login</button>
+    <div class="divider">or</div>
+    <p class="text-center" style="font-family:var(--font-body); color:var(--muted); font-size:.9rem;">
+      New to AutiLearn? <a href="register.html" class="link">Create an account</a>
+    </p>
+  </div>
+</div>
+
+<script>
+  function parentLogin(){
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const alertBox = document.getElementById('alertBox');
+
+    if(!email || !password){
+      alertBox.innerHTML=`<div class="alert alert-error">⚠️ Please fill in both fields!</div>`;
+      return;
+    }
+
+    fetch('/api/auth/parent/login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email, password})
+    })
+    .then(r=>r.json())
+    .then(data=>{
+      if(data.success){
+        sessionStorage.setItem('parentId',   data.parentId);
+        sessionStorage.setItem('parentName', data.fullName);
+        window.location.href = 'dashboard-parent.html';
+      } else {
+        alertBox.innerHTML=`<div class="alert alert-error">❌ ${data.message || 'Invalid credentials!'}</div>`;
+      }
+    })
+    .catch(()=>{
+      // Demo fallback
+      if(email && password.length>=3){
+        sessionStorage.setItem('parentName', email.split('@')[0]);
+        window.location.href = 'dashboard-parent.html';
+      }
+    });
+  }
+  document.addEventListener('keydown', e=>{ if(e.key==='Enter') parentLogin(); });
+</script>
+</body>
+</html>

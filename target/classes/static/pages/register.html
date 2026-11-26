@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutiLearn – Register</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .tab-row { display:flex; gap:.5rem; margin-bottom:1.5rem; }
+    .tab-btn {
+      flex:1; padding:.7rem; border-radius:14px; border:2.5px solid #e8e8e8;
+      font-family:var(--font-head); font-size:1rem; font-weight:700;
+      background:#fafafa; cursor:pointer; transition:.2s; color:var(--muted);
+    }
+    .tab-btn.active { border-color:var(--pink); background:#fff0f7; color:var(--pink); }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .avatar-picker { display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; margin:.5rem 0; }
+    .av { font-size:2rem; padding:.3rem; border-radius:50%; border:3px solid transparent; cursor:pointer; transition:.2s; }
+    .av:hover { transform:scale(1.2); }
+    .av.selected { border-color:var(--pink); background:#fff0f7; }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="../index.html" class="nav-logo">🌈 AutiLearn</a>
+  <div class="nav-links">
+    <a href="../index.html">🏠 Home</a>
+    <a href="login-parent.html">Parent Login</a>
+    <a href="login-child.html">Child Login</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="card">
+    <h1 class="card-title">✨ Join AutiLearn</h1>
+    <p class="card-sub">Start your learning journey today!</p>
+
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('parent')">👨‍👩‍👧 Parent</button>
+      <button class="tab-btn"        onclick="switchTab('child')">👦 Child</button>
+    </div>
+
+    <div id="alertBox"></div>
+
+    <!-- PARENT REGISTRATION -->
+    <div class="tab-content active" id="tab-parent">
+      <div class="form-group"><label>👤 Full Name</label><input type="text" id="p-name" placeholder="Your full name"/></div>
+      <div class="form-group"><label>📧 Email</label><input type="email" id="p-email" placeholder="parent@email.com"/></div>
+      <div class="form-group"><label>📱 Phone (optional)</label><input type="tel" id="p-phone" placeholder="10-digit mobile"/></div>
+      <div class="form-group"><label>🔒 Password</label><input type="password" id="p-pass" placeholder="Min 6 characters"/></div>
+      <div class="form-group"><label>🔒 Confirm Password</label><input type="password" id="p-pass2" placeholder="Repeat password"/></div>
+      <div class="form-group">
+        <label>👦 Child's Name</label><input type="text" id="c-name-p" placeholder="Your child's name"/>
+      </div>
+      <div class="form-group">
+        <label>🏷️ Child Username</label><input type="text" id="c-user-p" placeholder="e.g. sunny123"/>
+      </div>
+      <div class="form-group">
+        <label>🎂 Child's Age</label><input type="number" id="c-age-p" min="3" max="16" placeholder="Age" value="7"/>
+      </div>
+      <div class="form-group">
+        <label>🦁 Child's Avatar</label>
+        <div class="avatar-picker" id="avPickerP">
+          <span class="av selected" data-av="🦁">🦁</span>
+          <span class="av" data-av="🐯">🐯</span>
+          <span class="av" data-av="🐸">🐸</span>
+          <span class="av" data-av="🐼">🐼</span>
+          <span class="av" data-av="🦊">🦊</span>
+          <span class="av" data-av="🐨">🐨</span>
+          <span class="av" data-av="🚀">🚀</span>
+          <span class="av" data-av="⭐">⭐</span>
+        </div>
+      </div>
+      <div class="form-group"><label>🔑 Child's Password</label><input type="password" id="c-pass-p" placeholder="Easy to remember!"/></div>
+      <button class="btn btn-secondary mt-2" onclick="registerAll()">🎉 Create Account</button>
+    </div>
+
+    <!-- CHILD-ONLY TAB (add to existing parent) -->
+    <div class="tab-content" id="tab-child">
+      <p style="font-family:var(--font-body);font-size:.85rem;color:var(--muted);margin-bottom:1rem;">
+        ⚠️ A parent account must exist first. Use this to add another child.
+      </p>
+      <div class="form-group"><label>📧 Parent's Email</label><input type="email" id="c-parent-email" placeholder="Parent's registered email"/></div>
+      <div class="form-group"><label>😊 Child's Display Name</label><input type="text" id="c-name" placeholder="e.g. Sunny"/></div>
+      <div class="form-group"><label>🏷️ Username</label><input type="text" id="c-username" placeholder="e.g. sunny_star (no spaces)"/></div>
+      <div class="form-group"><label>🎂 Age</label><input type="number" id="c-age" min="3" max="16" placeholder="Age (3–16)"/></div>
+      <div class="form-group">
+        <label>🦁 Pick an Avatar</label>
+        <div class="avatar-picker" id="avPicker">
+          <span class="av selected" data-av="🦁">🦁</span>
+          <span class="av" data-av="🐯">🐯</span>
+          <span class="av" data-av="🐸">🐸</span>
+          <span class="av" data-av="🐼">🐼</span>
+          <span class="av" data-av="🦊">🦊</span>
+          <span class="av" data-av="🐨">🐨</span>
+        </div>
+      </div>
+      <div class="form-group"><label>🔑 Secret Password</label><input type="password" id="c-pass" placeholder="Easy to remember!"/></div>
+      <button class="btn btn-primary mt-2" onclick="registerChildOnly()">🚀 Add Child</button>
+    </div>
+
+    <div class="divider">already have an account?</div>
+    <div style="display:flex;gap:.8rem;">
+      <a href="login-parent.html" class="btn btn-outline" style="flex:1;font-size:.95rem;">👨‍👩‍👧 Parent</a>
+      <a href="login-child.html"  class="btn btn-outline" style="flex:1;font-size:.95rem;">👦 Child</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchTab(tab){
+    document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+      b.classList.toggle('active',(tab==='parent'&&i===0)||(tab==='child'&&i===1));
+    });
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    document.getElementById('tab-'+tab).classList.add('active');
+    document.getElementById('alertBox').innerHTML='';
+  }
+
+  // Avatar selection for BOTH pickers
+  document.querySelectorAll('.av').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const picker = el.closest('.avatar-picker');
+      picker.querySelectorAll('.av').forEach(a=>a.classList.remove('selected'));
+      el.classList.add('selected');
+    });
+  });
+
+  function showAlert(msg,type='error'){
+    document.getElementById('alertBox').innerHTML=`<div class="alert alert-${type}">${msg}</div>`;
+  }
+
+  // Register parent + child together (correct backend endpoint)
+  async function registerAll(){
+    const name  = document.getElementById('p-name').value.trim();
+    const email = document.getElementById('p-email').value.trim();
+    const phone = document.getElementById('p-phone').value.trim();
+    const pass  = document.getElementById('p-pass').value;
+    const pass2 = document.getElementById('p-pass2').value;
+    const cName = document.getElementById('c-name-p').value.trim();
+    const cUser = document.getElementById('c-user-p').value.trim().replace(/\s/g,'_');
+    const cAge  = parseInt(document.getElementById('c-age-p').value)||7;
+    const cPass = document.getElementById('c-pass-p').value;
+    const cAv   = document.querySelector('#avPickerP .av.selected')?.dataset.av || '🦁';
+
+    if(!name||!email||!pass||!cName||!cUser||!cPass){ showAlert('⚠️ Please fill all required fields!'); return; }
+    if(pass!==pass2){ showAlert('❌ Passwords do not match!'); return; }
+    if(pass.length<6){ showAlert('❌ Password must be at least 6 characters!'); return; }
+
+    try {
+      const r = await fetch('/api/auth/register',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          parent:{ fullName:name, email, phone, password:pass },
+          child:{ fullName:cName, username:cUser, age:cAge, password:cPass, avatar:cAv }
+        })
+      });
+      const d = await r.json();
+      if(d.success){
+        showAlert('🎉 Account created! Redirecting to login…','success');
+        setTimeout(()=>window.location.href='login-parent.html',1800);
+      } else {
+        showAlert('❌ '+(d.message||'Registration failed.'));
+      }
+    } catch(e){
+      showAlert('❌ Cannot connect to server. Make sure the app is running.'); 
+    }
+  }
+
+  // Add child only (parent must already exist)
+  async function registerChildOnly(){
+    const parentEmail = document.getElementById('c-parent-email').value.trim();
+    const name     = document.getElementById('c-name').value.trim();
+    const username = document.getElementById('c-username').value.trim().replace(/\s/g,'_');
+    const age      = parseInt(document.getElementById('c-age').value)||7;
+    const pass     = document.getElementById('c-pass').value;
+    const avatar   = document.querySelector('#avPicker .av.selected')?.dataset.av || '🦁';
+
+    if(!parentEmail||!name||!username||!pass){ showAlert('⚠️ Please fill all required fields!'); return; }
+    if(username.length<3){ showAlert('❌ Username must be at least 3 characters!'); return; }
+
+    // First find the parent by email, then add child
+    try {
+      const r = await fetch('/api/auth/register',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          parent:{ email:parentEmail },
+          child:{ fullName:name, username, age, password:pass, avatar }
+        })
+      });
+      const d = await r.json();
+      if(d.success){
+        showAlert(`🌟 ${name} is ready to learn! Redirecting…`,'success');
+        setTimeout(()=>window.location.href='login-child.html',1800);
+      } else {
+        showAlert('❌ '+(d.message||'Could not create child account.'));
+      }
+    } catch(e){
+      showAlert('❌ Server error. Try again.');
+    }
+  }
+</script>
+</body>
+</html>

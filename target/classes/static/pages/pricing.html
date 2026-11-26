@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutiLearn – Plans & Pricing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    body { background:linear-gradient(135deg,#fff0f7,#f0f8ff,#fffde0); min-height:100vh; }
+    .pricing-hero { text-align:center; padding:3rem 2rem 2rem; }
+    .pricing-hero h1 {
+      font-family:var(--font-head); font-size:2.8rem; font-weight:800;
+      background:linear-gradient(135deg,var(--pink),var(--purple));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .pricing-hero p { font-family:var(--font-body); color:var(--muted); font-size:1.1rem; margin-top:.5rem; }
+    .billing-toggle { display:flex; align-items:center; gap:1rem; justify-content:center; margin:1.5rem 0; }
+    .toggle-label { font-family:var(--font-head); font-weight:700; color:var(--muted); font-size:1rem; }
+    .toggle-label.active { color:var(--pink); }
+    .toggle-switch { width:56px; height:28px; background:#e8e8e8; border-radius:50px; position:relative; cursor:pointer; transition:.3s; }
+    .toggle-switch.on { background:linear-gradient(135deg,var(--pink),var(--orange)); }
+    .toggle-switch::after { content:''; position:absolute; width:22px; height:22px; border-radius:50%; background:#fff; top:3px; left:3px; transition:.3s; box-shadow:0 2px 6px rgba(0,0,0,.2); }
+    .toggle-switch.on::after { left:31px; }
+    .save-badge { background:linear-gradient(135deg,var(--green),#38d9a9); color:#fff; font-family:var(--font-head); font-size:.8rem; font-weight:700; padding:.2rem .7rem; border-radius:50px; }
+    .plans-grid { display:flex; gap:1.5rem; justify-content:center; flex-wrap:wrap; padding:1rem 2rem 3rem; max-width:1100px; margin:0 auto; }
+    .plan-card { background:#fff; border-radius:28px; padding:2rem 1.8rem; width:300px; box-shadow:var(--shadow); border:3px solid transparent; position:relative; transition:.3s; }
+    .plan-card:hover { transform:translateY(-8px); box-shadow:var(--shadow-hover); }
+    .plan-card.popular { border-color:var(--pink); transform:scale(1.04); box-shadow:0 16px 48px rgba(255,110,180,.25); }
+    .plan-card.popular:hover { transform:scale(1.04) translateY(-8px); }
+    .popular-badge { position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,var(--pink),var(--orange)); color:#fff; font-family:var(--font-head); font-size:.85rem; font-weight:700; padding:.3rem 1.2rem; border-radius:50px; white-space:nowrap; }
+    .plan-icon { font-size:3rem; margin-bottom:.8rem; }
+    .plan-name { font-family:var(--font-head); font-size:1.5rem; font-weight:800; color:var(--text); }
+    .plan-desc { font-family:var(--font-body); color:var(--muted); font-size:.9rem; margin:.4rem 0 1.2rem; }
+    .plan-price { font-family:var(--font-head); font-weight:800; margin-bottom:1.2rem; }
+    .price-amount { font-size:3rem; color:var(--pink); line-height:1; }
+    .price-period { font-size:1rem; color:var(--muted); }
+    .price-original { font-size:.95rem; color:var(--muted); text-decoration:line-through; margin-left:.4rem; }
+    .plan-features { list-style:none; margin-bottom:1.5rem; }
+    .plan-features li { font-family:var(--font-body); font-size:.92rem; color:#555; padding:.35rem 0; display:flex; align-items:center; gap:.5rem; border-bottom:1px solid #f5f5f5; }
+    .plan-features li:last-child { border:none; }
+    .feat-no { opacity:.4; text-decoration:line-through; }
+    .btn-plan { display:block; width:100%; text-align:center; font-family:var(--font-head); font-size:1rem; font-weight:700; padding:.8rem; border-radius:50px; border:none; cursor:pointer; transition:.2s; }
+    .btn-plan:hover { transform:translateY(-2px); }
+    .btn-plan-free   { background:#f5f5f5; color:var(--muted); }
+    .btn-plan-basic  { background:linear-gradient(135deg,var(--blue),var(--purple));  color:#fff; box-shadow:0 6px 20px rgba(51,154,240,.35); }
+    .btn-plan-pro    { background:linear-gradient(135deg,var(--pink),var(--orange));  color:#fff; box-shadow:0 6px 20px rgba(255,110,180,.4); }
+    .btn-plan-school { background:linear-gradient(135deg,var(--green),var(--blue));   color:#fff; box-shadow:0 6px 20px rgba(81,207,102,.35); }
+    /* FAQ */
+    .faq { max-width:800px; margin:0 auto; padding:2rem; }
+    .faq h2 { font-family:var(--font-head); font-size:1.8rem; font-weight:800; text-align:center; margin-bottom:1.5rem; }
+    .faq-item { background:#fff; border-radius:16px; margin-bottom:.8rem; box-shadow:var(--shadow); overflow:hidden; }
+    .faq-q { font-family:var(--font-head); font-size:1rem; font-weight:700; padding:1rem 1.2rem; cursor:pointer; display:flex; justify-content:space-between; color:var(--text); }
+    .faq-a { font-family:var(--font-body); color:var(--muted); font-size:.9rem; padding:0 1.2rem 1rem; display:none; }
+    .faq-item.open .faq-a { display:block; }
+    .faq-item.open .faq-q { color:var(--pink); }
+    /* PAYMENT MODAL */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter:blur(8px); z-index:1000; align-items:center; justify-content:center; }
+    .modal-overlay.show { display:flex; }
+    .modal { background:#fff; border-radius:28px; padding:2.5rem; width:92%; max-width:460px; position:relative; animation:cardIn .4s cubic-bezier(.34,1.56,.64,1) both; box-shadow:0 24px 64px rgba(0,0,0,.3); }
+    .modal-close { position:absolute; top:1rem; right:1rem; background:#f0f0f0; border:none; border-radius:50%; width:36px; height:36px; font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .modal-title { font-family:var(--font-head); font-size:1.6rem; font-weight:800; margin-bottom:.3rem; }
+    .modal-sub   { color:var(--muted); font-size:.9rem; margin-bottom:1.5rem; }
+    .order-summary { background:#fff8f0; border-radius:16px; padding:1rem 1.2rem; margin-bottom:1.2rem; border:2px solid #ffe8cc; }
+    .order-row { display:flex; justify-content:space-between; font-family:var(--font-body); font-size:.9rem; margin:.3rem 0; }
+    .order-total { font-family:var(--font-head); font-weight:800; font-size:1.1rem; color:var(--pink); margin-top:.5rem; padding-top:.5rem; border-top:1px solid #eee; }
+    .success-screen { display:none; text-align:center; padding:1rem; }
+    .success-screen.show { display:block; }
+    .success-screen .s-emoji { font-size:5rem; }
+    .success-screen h2 { font-family:var(--font-head); font-size:1.8rem; font-weight:800; color:var(--green); margin:.5rem 0; }
+    .success-screen p  { font-family:var(--font-body); color:var(--muted); margin-bottom:1.2rem; }
+    .txn-id { font-family:monospace; background:#f5f5f5; padding:.3rem .8rem; border-radius:8px; font-size:.85rem; }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="../index.html" class="nav-logo">🌈 AutiLearn</a>
+  <div class="nav-links">
+    <a href="login-child.html">Child Login</a>
+    <a href="login-parent.html">Parent Login</a>
+    <a href="register.html" class="nav-register">Register Free</a>
+  </div>
+</nav>
+
+<div class="pricing-hero">
+  <h1>Simple, Honest Pricing 💙</h1>
+  <p>Start free. Upgrade when your child is ready to explore more.</p>
+  <div class="billing-toggle">
+    <span class="toggle-label active" id="lblMonthly">Monthly</span>
+    <div class="toggle-switch" id="billingToggle" onclick="toggleBilling()"></div>
+    <span class="toggle-label" id="lblYearly">Yearly</span>
+    <span class="save-badge">Save 30%</span>
+  </div>
+</div>
+
+<div class="plans-grid">
+  <!-- FREE -->
+  <div class="plan-card">
+    <div class="plan-icon">🆓</div><div class="plan-name">Free</div>
+    <div class="plan-desc">Perfect to get started</div>
+    <div class="plan-price"><span class="price-amount">₹0</span><span class="price-period"> / forever</span></div>
+    <ul class="plan-features">
+      <li>✅ 2 Learning Modules</li><li>✅ Alphabets &amp; Numbers</li>
+      <li>✅ Basic Progress Tracking</li><li>✅ 1 Child Profile</li>
+      <li class="feat-no">❌ Colors &amp; Shapes</li><li class="feat-no">❌ Memory Game</li>
+      <li class="feat-no">❌ Quiz Module</li><li class="feat-no">❌ Badge System</li>
+    </ul>
+    <button class="btn-plan btn-plan-free" onclick="window.location.href='register.html'">Get Started Free</button>
+  </div>
+  <!-- BASIC -->
+  <div class="plan-card">
+    <div class="plan-icon">⭐</div><div class="plan-name">Basic</div>
+    <div class="plan-desc">Great for home learning</div>
+    <div class="plan-price">
+      <span class="price-amount" id="basicPrice">₹199</span>
+      <span class="price-period" id="basicPeriod"> / month</span>
+      <span class="price-original" id="basicOrig" style="display:none">₹284</span>
+    </div>
+    <ul class="plan-features">
+      <li>✅ All 6 Learning Modules</li><li>✅ Memory Game &amp; Quiz</li>
+      <li>✅ Audio-Visual Support</li><li>✅ Full Progress Tracking</li>
+      <li>✅ Badge &amp; Points System</li><li>✅ 1 Child Profile</li>
+      <li class="feat-no">❌ Multiple Children</li><li class="feat-no">❌ Detailed Reports</li>
+    </ul>
+    <button class="btn-plan btn-plan-basic" onclick="openPayment('Basic',199,284)">Subscribe – Basic</button>
+  </div>
+  <!-- PRO -->
+  <div class="plan-card popular">
+    <div class="popular-badge">⭐ Most Popular</div>
+    <div class="plan-icon">🌟</div><div class="plan-name">Pro</div>
+    <div class="plan-desc">Best for families</div>
+    <div class="plan-price">
+      <span class="price-amount" id="proPrice">₹349</span>
+      <span class="price-period" id="proPeriod"> / month</span>
+      <span class="price-original" id="proOrig" style="display:none">₹499</span>
+    </div>
+    <ul class="plan-features">
+      <li>✅ Everything in Basic</li><li>✅ Up to 3 Child Profiles</li>
+      <li>✅ Detailed Progress Reports</li><li>✅ Weekly Email Reports</li>
+      <li>✅ Priority Support</li><li>✅ Customizable Avatars</li>
+      <li>✅ Offline Access</li><li class="feat-no">❌ School Dashboard</li>
+    </ul>
+    <button class="btn-plan btn-plan-pro" onclick="openPayment('Pro',349,499)">Subscribe – Pro</button>
+  </div>
+  <!-- SCHOOL -->
+  <div class="plan-card">
+    <div class="plan-icon">🏫</div><div class="plan-name">School</div>
+    <div class="plan-desc">For institutions &amp; therapists</div>
+    <div class="plan-price">
+      <span class="price-amount" id="schoolPrice">₹999</span>
+      <span class="price-period" id="schoolPeriod"> / month</span>
+      <span class="price-original" id="schoolOrig" style="display:none">₹1428</span>
+    </div>
+    <ul class="plan-features">
+      <li>✅ Everything in Pro</li><li>✅ Up to 30 Children</li>
+      <li>✅ Teacher / Therapist Login</li><li>✅ School Admin Dashboard</li>
+      <li>✅ Bulk Progress Reports</li><li>✅ Custom Branding</li>
+      <li>✅ API Access</li><li>✅ Dedicated Support</li>
+    </ul>
+    <button class="btn-plan btn-plan-school" onclick="openPayment('School',999,1428)">Subscribe – School</button>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq">
+  <h2>❓ Frequently Asked Questions</h2>
+  <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Is AutiLearn safe for my child? <span>▾</span></div><div class="faq-a">Yes! AutiLearn is designed specifically for autistic children with a calm interface. No ads, no tracking, no external links.</div></div>
+  <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Can I cancel anytime? <span>▾</span></div><div class="faq-a">Absolutely. Cancel any time from your Parent Dashboard. No hidden charges.</div></div>
+  <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Which payment methods are accepted? <span>▾</span></div><div class="faq-a">UPI, Credit/Debit Cards (Visa, Mastercard, RuPay), Net Banking, Paytm, PhonePe — all via Razorpay.</div></div>
+  <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Is there a free trial? <span>▾</span></div><div class="faq-a">Yes! All paid plans come with a 7-day free trial. No credit card required to start.</div></div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="payModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="payForm">
+      <div class="modal-title">💳 Complete Payment</div>
+      <div class="modal-sub">Secure checkout powered by Razorpay</div>
+      <div class="order-summary">
+        <div class="order-row"><span>Plan</span><span id="summaryPlan" style="font-weight:700;">Pro</span></div>
+        <div class="order-row"><span>Billing</span><span id="summaryBilling">Monthly</span></div>
+        <div class="order-row"><span>GST (18%)</span><span id="summaryGST">₹63</span></div>
+        <div class="order-row order-total"><span>Total</span><span id="summaryTotal">₹412</span></div>
+      </div>
+      <div class="form-group"><label>👤 Full Name</label><input type="text" id="payName" placeholder="As on your ID"/></div>
+      <div class="form-group"><label>📧 Email</label><input type="email" id="payEmail" placeholder="payment@email.com"/></div>
+      <div class="form-group"><label>📱 Mobile</label><input type="tel" id="payPhone" placeholder="10-digit mobile"/></div>
+      <div id="payAlert"></div>
+      <button class="btn btn-primary mt-2" onclick="initiatePayment()" id="payBtn">🔒 Pay Securely via Razorpay</button>
+      <p style="text-align:center;font-size:.8rem;color:var(--muted);margin-top:.8rem;font-family:var(--font-body);">🔐 256-bit SSL encrypted | Powered by Razorpay</p>
+    </div>
+    <div class="success-screen" id="successScreen">
+      <div class="s-emoji">🎉</div>
+      <h2>Payment Successful!</h2>
+      <p>Welcome to AutiLearn <span id="successPlan">Pro</span>!<br/>Your child's full learning journey begins now.</p>
+      <div class="txn-id">TXN ID: <span id="txnId">—</span></div>
+      <div style="display:flex;gap:.8rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap;">
+        <a href="login-parent.html" class="btn btn-primary" style="width:auto;padding:.6rem 1.8rem;">🚀 Go to Dashboard</a>
+        <button class="btn btn-outline" style="width:auto;padding:.6rem 1.8rem;" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+  let isYearly = false;
+  let currentPlan = '', currentAmount = 0;
+  const PRICES = {
+    Basic:  {monthly:199,  yearly:1393, origY:2388},
+    Pro:    {monthly:349,  yearly:2443, origY:4188},
+    School: {monthly:999,  yearly:6993, origY:11988},
+  };
+
+  function toggleBilling(){
+    isYearly = !isYearly;
+    document.getElementById('billingToggle').classList.toggle('on', isYearly);
+    document.getElementById('lblMonthly').classList.toggle('active', !isYearly);
+    document.getElementById('lblYearly').classList.toggle('active',  isYearly);
+    ['basic','pro','school'].forEach(plan=>{
+      const p = PRICES[plan.charAt(0).toUpperCase()+plan.slice(1)];
+      if(!p) return;
+      document.getElementById(plan+'Price').textContent  = '₹'+(isYearly?p.yearly:p.monthly);
+      document.getElementById(plan+'Period').textContent = isYearly?' / year':' / month';
+      const orig = document.getElementById(plan+'Orig');
+      if(orig){ orig.textContent='₹'+(isYearly?p.origY:''); orig.style.display=isYearly?'inline':'none'; }
+    });
+  }
+
+  function openPayment(planName, monthlyAmt, yearlyAmt){
+    if(!sessionStorage.getItem('parentId')){
+      alert('Please login as a parent first to subscribe to a plan.');
+      window.location.href='login-parent.html'; return;
+    }
+    currentPlan   = planName;
+    const baseAmt = isYearly ? yearlyAmt : monthlyAmt;
+    const gst     = Math.round(baseAmt * 0.18);
+    currentAmount = baseAmt + gst;
+    document.getElementById('summaryPlan').textContent    = planName;
+    document.getElementById('summaryBilling').textContent = isYearly?'Yearly':'Monthly';
+    document.getElementById('summaryGST').textContent     = '₹'+gst;
+    document.getElementById('summaryTotal').textContent   = '₹'+currentAmount;
+    document.getElementById('payForm').style.display      = 'block';
+    document.getElementById('successScreen').classList.remove('show');
+    document.getElementById('payAlert').innerHTML         = '';
+    const pName = sessionStorage.getItem('parentName');
+    if(pName) document.getElementById('payName').value = pName;
+    document.getElementById('payModal').classList.add('show');
+  }
+
+  function closeModal(){ document.getElementById('payModal').classList.remove('show'); }
+
+  async function initiatePayment(){
+    const name  = document.getElementById('payName').value.trim();
+    const email = document.getElementById('payEmail').value.trim();
+    const phone = document.getElementById('payPhone').value.trim();
+    const alertEl = document.getElementById('payAlert');
+    if(!name||!email||!phone){ alertEl.innerHTML='<div class="alert alert-error">⚠️ Please fill in all fields!</div>'; return; }
+    if(phone.length!==10){ alertEl.innerHTML='<div class="alert alert-error">⚠️ Enter a valid 10-digit mobile!</div>'; return; }
+
+    const btn = document.getElementById('payBtn');
+    btn.textContent='⏳ Creating order…'; btn.disabled=true;
+
+    const parentId = sessionStorage.getItem('parentId');
+    try {
+      const r = await fetch('/api/payment/create-order',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ parentId:parseInt(parentId), plan:currentPlan.toLowerCase(), amount:currentAmount })
+      });
+      const d = await r.json();
+      if(d.demoMode || !d.success){
+        // Demo mode — simulate success
+        showSuccess('DEMO_PAY_'+Date.now());
+      } else {
+        launchRazorpay(d.razorpayOrderId, d.razorpayKeyId, name, email, phone);
+      }
+    } catch(e){
+      showSuccess('DEMO_PAY_'+Date.now());
+    } finally {
+      btn.textContent='🔒 Pay Securely via Razorpay'; btn.disabled=false;
+    }
+  }
+
+  function launchRazorpay(orderId, keyId, name, email, phone){
+    const options = {
+      key: keyId || 'rzp_test_demo',
+      amount: currentAmount * 100, currency:'INR',
+      name:'AutiLearn', description: currentPlan + ' Plan Subscription',
+      order_id: orderId,
+      prefill:{ name, email, contact:'+91'+phone },
+      theme:{ color:'#ff6eb4' },
+      handler: async function(response){
+        const r = await fetch('/api/payment/verify',{
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpayOrderId:   response.razorpay_order_id,
+            razorpaySignature: response.razorpay_signature,
+            parentId: parseInt(sessionStorage.getItem('parentId')),
+            plan: currentPlan.toLowerCase()
+          })
+        });
+        const d = await r.json();
+        showSuccess(response.razorpay_payment_id);
+      }
+    };
+    const rzp = new Razorpay(options);
+    rzp.on('payment.failed', (r)=>{
+      document.getElementById('payAlert').innerHTML=`<div class="alert alert-error">❌ ${r.error.description}</div>`;
+    });
+    rzp.open();
+  }
+
+  function showSuccess(paymentId){
+    document.getElementById('payForm').style.display='none';
+    document.getElementById('successPlan').textContent = currentPlan;
+    document.getElementById('txnId').textContent       = paymentId;
+    document.getElementById('successScreen').classList.add('show');
+    sessionStorage.setItem('plan', currentPlan);
+  }
+
+  function toggleFaq(item){ item.classList.toggle('open'); }
+  document.getElementById('payModal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+</script>
+</body>
+</html>

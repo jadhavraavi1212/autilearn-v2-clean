@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutiLearn – Numbers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    body { background:linear-gradient(135deg,#fff5e0,#fffdf9); min-height:100vh; }
+    .module-hero { text-align:center; padding:2rem;
+                   background:linear-gradient(135deg,#ffa94d,#ffd43b); color:#fff; }
+    .module-hero h1 { font-family:var(--font-head); font-size:2.5rem; font-weight:800; }
+
+    .num-grid { display:flex; flex-wrap:wrap; gap:1.2rem; justify-content:center; padding:2rem; }
+    .num-card {
+      width:150px; background:#fff; border-radius:24px; padding:1.2rem 1rem;
+      text-align:center; cursor:pointer; box-shadow:var(--shadow);
+      border:3px solid #ffe0b2; transition:.3s;
+      font-family:var(--font-head);
+    }
+    .num-card:hover { transform:translateY(-8px) scale(1.05); box-shadow:var(--shadow-hover); border-color:var(--orange); }
+    .num-big { font-size:3.5rem; font-weight:800; color:var(--orange); line-height:1; }
+    .num-dots { font-size:1.1rem; margin:.4rem 0; letter-spacing:.1rem; color:#888; }
+    .num-word { font-size:.9rem; font-weight:700; color:var(--muted); }
+
+    /* Counting activity */
+    .count-activity {
+      max-width:600px; margin:0 auto; padding:2rem;
+      background:#fff; border-radius:28px; box-shadow:var(--shadow);
+      margin-bottom:2rem;
+    }
+    .count-activity h2 { font-family:var(--font-head); font-size:1.6rem; text-align:center; margin-bottom:1rem; }
+    .count-items { font-size:2.5rem; text-align:center; letter-spacing:.3rem; margin:1rem 0; }
+    .count-answer {
+      display:flex; gap:.8rem; justify-content:center; flex-wrap:wrap; margin-top:1rem;
+    }
+    .count-opt {
+      width:60px; height:60px; border-radius:16px; border:3px solid #e8e8e8;
+      background:#fafafa; font-family:var(--font-head); font-size:1.4rem; font-weight:800;
+      cursor:pointer; transition:.2s; display:flex; align-items:center; justify-content:center;
+    }
+    .count-opt:hover { border-color:var(--orange); background:#fff5e0; transform:scale(1.1); }
+    .count-opt.correct { border-color:var(--green); background:#ebfbee; color:var(--green); }
+    .count-opt.wrong   { border-color:#f03e3e; background:#fff0f3; color:#f03e3e; }
+    .feedback { text-align:center; font-family:var(--font-head); font-size:1.4rem; font-weight:700; min-height:2rem; }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="dashboard-child.html" class="nav-logo">← Back</a>
+  <div class="nav-links">
+    <span id="navPoints" class="score-badge">⭐ 0 pts</span>
+  </div>
+</nav>
+
+<div class="module-hero">
+  <h1>🔢 Number Fun</h1>
+  <p>Learn numbers 1–20 and practice counting!</p>
+</div>
+
+<!-- COUNTING ACTIVITY -->
+<div style="padding:2rem; max-width:660px; margin:0 auto;">
+  <div class="count-activity">
+    <h2>🔢 How many <span id="countEmoji">🍎</span> can you count?</h2>
+    <div class="count-items" id="countItems">🍎🍎🍎</div>
+    <div class="feedback" id="feedback"></div>
+    <div class="count-answer" id="countAnswers"></div>
+    <div style="text-align:center;margin-top:1.2rem;">
+      <button class="btn btn-secondary" style="width:auto;padding:.6rem 1.8rem;" onclick="nextQuestion()">Next ➡️</button>
+    </div>
+  </div>
+</div>
+
+<!-- NUMBER CARDS -->
+<div class="num-grid" id="numGrid"></div>
+
+<script src="../js/main.js"></script>
+<script>
+  const NUMBERS = [
+    {n:1,word:'One',e:'1️⃣'},{n:2,word:'Two',e:'2️⃣'},{n:3,word:'Three',e:'3️⃣'},
+    {n:4,word:'Four',e:'4️⃣'},{n:5,word:'Five',e:'5️⃣'},{n:6,word:'Six',e:'6️⃣'},
+    {n:7,word:'Seven',e:'7️⃣'},{n:8,word:'Eight',e:'8️⃣'},{n:9,word:'Nine',e:'9️⃣'},
+    {n:10,word:'Ten',e:'🔟'},{n:11,word:'Eleven',e:'1️⃣1️⃣'},{n:12,word:'Twelve',e:'1️⃣2️⃣'},
+    {n:13,word:'Thirteen',e:'1️⃣3️⃣'},{n:14,word:'Fourteen',e:'1️⃣4️⃣'},{n:15,word:'Fifteen',e:'1️⃣5️⃣'},
+    {n:16,word:'Sixteen',e:'1️⃣6️⃣'},{n:17,word:'Seventeen',e:'1️⃣7️⃣'},{n:18,word:'Eighteen',e:'1️⃣8️⃣'},
+    {n:19,word:'Nineteen',e:'1️⃣9️⃣'},{n:20,word:'Twenty',e:'2️⃣0️⃣'}
+  ];
+
+  const EMOJIS = ['🍎','🐶','⭐','🎈','🌸','🦋','🍭','🐸'];
+  let currentAnswer=0, currentEmoji='🍎';
+
+  function buildDots(n){ return '●'.repeat(n); }
+
+  // Build number cards
+  const grid=document.getElementById('numGrid');
+  NUMBERS.forEach(item=>{
+    const c=document.createElement('div');
+    c.className='num-card';
+    c.innerHTML=`<div class="num-big">${item.n}</div>
+                 <div class="num-dots">${buildDots(Math.min(item.n,10))}</div>
+                 <div class="num-word">${item.word}</div>`;
+    c.onclick=()=>{ speak(item.word+', '+item.n); awardPoints(3); };
+    grid.appendChild(c);
+  });
+
+  // Counting quiz
+  function nextQuestion(){
+    document.getElementById('feedback').textContent='';
+    document.querySelectorAll('.count-opt').forEach(o=>{
+      o.classList.remove('correct','wrong'); o.disabled=false;
+    });
+    const count=Math.floor(Math.random()*9)+1;
+    currentAnswer=count;
+    currentEmoji=EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
+    document.getElementById('countEmoji').textContent=currentEmoji;
+    document.getElementById('countItems').textContent=currentEmoji.repeat(count);
+
+    // build options (correct + 3 wrong)
+    const opts=new Set([count]);
+    while(opts.size<4){ opts.add(Math.floor(Math.random()*10)+1); }
+    const arr=[...opts].sort(()=>Math.random()-.5);
+
+    const ansDiv=document.getElementById('countAnswers');
+    ansDiv.innerHTML='';
+    arr.forEach(n=>{
+      const b=document.createElement('button');
+      b.className='count-opt'; b.textContent=n;
+      b.onclick=()=>checkAnswer(n,b);
+      ansDiv.appendChild(b);
+    });
+  }
+
+  function checkAnswer(val, btn){
+    const feedback=document.getElementById('feedback');
+    if(val===currentAnswer){
+      btn.classList.add('correct');
+      feedback.textContent='🎉 Correct! Great counting!';
+      speak('Correct! Great job!');
+      awardPoints(10);
+      setTimeout(nextQuestion,1500);
+    } else {
+      btn.classList.add('wrong');
+      feedback.textContent='❌ Try again! Count carefully…';
+      speak('Try again');
+    }
+    document.querySelectorAll('.count-opt').forEach(o=>o.disabled=true);
+    btn.disabled=false;
+  }
+
+  function speak(text){
+    const u=new SpeechSynthesisUtterance(text);
+    u.rate=0.8; u.pitch=1.2; window.speechSynthesis.speak(u);
+  }
+
+  function awardPoints(pts){
+    let cur=parseInt(sessionStorage.getItem('childPoints')||'0');
+    cur+=pts; sessionStorage.setItem('childPoints',cur);
+    const navEl=document.getElementById('navPoints');
+    if(navEl) navEl.textContent='⭐ '+cur+' pts';
+    if(pts>=10){ saveProgress(2, pts); }
+  }
+
+  document.getElementById('navPoints').textContent='⭐ '+(sessionStorage.getItem('childPoints')||'0')+' pts';
+  nextQuestion();
+</script>
+</body>
+</html>

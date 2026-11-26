@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutiLearn – Shapes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    body { background:linear-gradient(135deg,#e0f0ff,#fffdf9); min-height:100vh; }
+    .module-hero { text-align:center; padding:2rem;
+      background:linear-gradient(135deg,#339af0,#9775fa); color:#fff; }
+    .module-hero h1 { font-family:var(--font-head); font-size:2.5rem; font-weight:800; }
+
+    .shape-grid { display:flex; flex-wrap:wrap; gap:1.5rem; justify-content:center; padding:2rem; }
+    .shape-card {
+      width:170px; background:#fff; border-radius:24px; padding:1.5rem 1rem;
+      text-align:center; cursor:pointer; box-shadow:var(--shadow);
+      border:3px solid #c5e3ff; transition:.3s; font-family:var(--font-head);
+    }
+    .shape-card:hover { transform:translateY(-8px) rotate(2deg); box-shadow:var(--shadow-hover); border-color:var(--blue); }
+    .shape-svg { margin-bottom:.8rem; }
+    .shape-name { font-size:1.2rem; font-weight:800; color:var(--blue); }
+    .shape-sides{ font-size:.85rem; color:var(--muted); }
+
+    /* QUIZ */
+    .quiz-section { max-width:680px; margin:0 auto; padding:2rem; }
+    .quiz-section h2 { font-family:var(--font-head); font-size:1.6rem; text-align:center; margin-bottom:1.5rem; }
+    .shape-display { display:flex; justify-content:center; margin-bottom:1.5rem; }
+    .shape-opts { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; }
+    .shape-opt {
+      padding:.8rem 1rem; border-radius:16px; border:3px solid #e8e8e8;
+      font-family:var(--font-head); font-size:1rem; font-weight:700;
+      background:#fafafa; cursor:pointer; transition:.2s;
+    }
+    .shape-opt:hover { border-color:var(--blue); background:#e0f0ff; }
+    .shape-opt.correct { border-color:var(--green); background:#ebfbee; color:var(--green); }
+    .shape-opt.wrong   { border-color:#f03e3e; background:#fff0f3; color:#f03e3e; }
+    .shape-feedback { text-align:center; font-family:var(--font-head); font-size:1.3rem; font-weight:700; min-height:2rem; margin-top:.8rem; }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="dashboard-child.html" class="nav-logo">← Back</a>
+  <div class="nav-links"><span id="navPoints" class="score-badge">⭐ 0 pts</span></div>
+</nav>
+
+<div class="module-hero">
+  <h1>🔷 Shape Safari</h1>
+  <p>Discover shapes all around you!</p>
+</div>
+
+<div class="shape-grid" id="shapeGrid"></div>
+
+<div class="quiz-section">
+  <h2>🔍 Name This Shape!</h2>
+  <div class="shape-display" id="shapeDisplay"></div>
+  <div class="shape-opts" id="shapeOpts"></div>
+  <div class="shape-feedback" id="shapeFeedback"></div>
+  <div style="text-align:center;margin-top:1rem;">
+    <button class="btn btn-secondary" style="width:auto;padding:.6rem 2rem;" onclick="nextShapeQ()">Next ➡️</button>
+  </div>
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+  const SHAPES=[
+    {name:'Circle',   sides:'No corners', color:'#f03e3e',
+     svg:`<svg width="100" height="100"><circle cx="50" cy="50" r="44" fill="#f03e3e"/></svg>`},
+    {name:'Square',   sides:'4 equal sides', color:'#339af0',
+     svg:`<svg width="100" height="100"><rect x="8" y="8" width="84" height="84" rx="6" fill="#339af0"/></svg>`},
+    {name:'Triangle', sides:'3 sides', color:'#51cf66',
+     svg:`<svg width="100" height="100"><polygon points="50,5 95,95 5,95" fill="#51cf66"/></svg>`},
+    {name:'Rectangle',sides:'2 long, 2 short sides', color:'#ffa94d',
+     svg:`<svg width="140" height="80"><rect x="4" y="4" width="132" height="72" rx="6" fill="#ffa94d"/></svg>`},
+    {name:'Star',     sides:'5 points', color:'#ffd43b',
+     svg:`<svg width="110" height="105"><polygon points="55,5 67,40 105,40 75,62 86,97 55,76 24,97 35,62 5,40 43,40" fill="#ffd43b"/></svg>`},
+    {name:'Diamond',  sides:'4 sides', color:'#9775fa',
+     svg:`<svg width="100" height="110"><polygon points="50,5 95,55 50,105 5,55" fill="#9775fa"/></svg>`},
+    {name:'Oval',     sides:'No corners', color:'#f783ac',
+     svg:`<svg width="140" height="90"><ellipse cx="70" cy="45" rx="64" ry="40" fill="#f783ac"/></svg>`},
+    {name:'Pentagon', sides:'5 sides', color:'#20c997',
+     svg:`<svg width="110" height="105"><polygon points="55,5 105,40 87,95 23,95 5,40" fill="#20c997"/></svg>`}
+  ];
+
+  let currentShape=null;
+
+  const grid=document.getElementById('shapeGrid');
+  SHAPES.forEach(s=>{
+    const div=document.createElement('div');
+    div.className='shape-card';
+    div.innerHTML=`<div class="shape-svg">${s.svg}</div>
+                   <div class="shape-name">${s.name}</div>
+                   <div class="shape-sides">${s.sides}</div>`;
+    div.onclick=()=>{ speak(s.name+'. '+s.sides); awardPoints(4); };
+    grid.appendChild(div);
+  });
+
+  function nextShapeQ(){
+    document.getElementById('shapeFeedback').textContent='';
+    currentShape=SHAPES[Math.floor(Math.random()*SHAPES.length)];
+    document.getElementById('shapeDisplay').innerHTML=currentShape.svg;
+
+    const opts=new Set([currentShape.name]);
+    while(opts.size<4) opts.add(SHAPES[Math.floor(Math.random()*SHAPES.length)].name);
+    const arr=[...opts].sort(()=>Math.random()-.5);
+
+    const div=document.getElementById('shapeOpts');
+    div.innerHTML='';
+    arr.forEach(name=>{
+      const b=document.createElement('button');
+      b.className='shape-opt'; b.textContent=name;
+      b.onclick=()=>checkShape(name,b);
+      div.appendChild(b);
+    });
+  }
+
+  function checkShape(name,btn){
+    const fb=document.getElementById('shapeFeedback');
+    document.querySelectorAll('.shape-opt').forEach(o=>o.disabled=true);
+    if(name===currentShape.name){
+      btn.classList.add('correct');
+      fb.textContent='🎉 Yes! It\'s a '+name+'!';
+      speak('Correct! That is a '+name);
+      awardPoints(10);
+      setTimeout(nextShapeQ,1500);
+    } else {
+      btn.classList.add('wrong');
+      fb.textContent='❌ Not quite! Keep trying!';
+      document.querySelectorAll('.shape-opt').forEach(o=>o.disabled=false);
+    }
+  }
+
+  function speak(text){
+    const u=new SpeechSynthesisUtterance(text);
+    u.rate=0.8; u.pitch=1.2; window.speechSynthesis.speak(u);
+  }
+  function awardPoints(pts){
+    let cur=parseInt(sessionStorage.getItem('childPoints')||'0');
+    cur+=pts; sessionStorage.setItem('childPoints',cur);
+    const navEl=document.getElementById('navPoints');
+    if(navEl) navEl.textContent='⭐ '+cur+' pts';
+    if(pts>=10){ saveProgress(4, pts); }
+  }
+
+  document.getElementById('navPoints').textContent='⭐ '+(sessionStorage.getItem('childPoints')||'0')+' pts';
+  nextShapeQ();
+</script>
+</body>
+</html>

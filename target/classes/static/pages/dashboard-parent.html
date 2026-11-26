@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutiLearn – Parent Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    body { background:#f5f7fa; }
+    .parent-header { background:linear-gradient(135deg,#339af0,#51cf66); color:#fff; padding:2rem; text-align:center; }
+    .parent-header h1 { font-family:var(--font-head); font-size:2.2rem; font-weight:800; }
+    .parent-header p  { opacity:.9; font-size:1rem; }
+    .panel { max-width:1100px; margin:0 auto; padding:2rem; }
+
+    .child-card { background:#fff; border-radius:24px; padding:1.5rem; box-shadow:var(--shadow); margin-bottom:1.5rem; border-left:6px solid var(--blue); }
+    .child-card-head { display:flex; align-items:center; gap:1rem; margin-bottom:1rem; }
+    .child-av    { font-size:2.5rem; }
+    .child-cname { font-family:var(--font-head); font-size:1.3rem; font-weight:800; }
+    .child-meta  { font-size:.85rem; color:var(--muted); }
+
+    .progress-table { width:100%; border-collapse:collapse; font-family:var(--font-body); }
+    .progress-table th { background:#f0f4ff; font-family:var(--font-head); font-size:.9rem; padding:.6rem 1rem; text-align:left; color:#444; }
+    .progress-table td { padding:.6rem 1rem; border-bottom:1px solid #f0f0f0; font-size:.9rem; }
+    .progress-table tr:last-child td { border-bottom:none; }
+    .mini-bar { height:8px; background:#eee; border-radius:50px; width:120px; overflow:hidden; display:inline-block; vertical-align:middle; }
+    .mini-fill { height:100%; border-radius:50px; background:linear-gradient(90deg,var(--blue),var(--green)); }
+
+    .report-section { background:#fff; border-radius:24px; padding:1.5rem; box-shadow:var(--shadow); margin-bottom:1.5rem; }
+    .report-section h2 { font-family:var(--font-head); font-size:1.4rem; font-weight:800; margin-bottom:1rem; color:var(--text); }
+    .tip-card { background:linear-gradient(135deg,#e0f0ff,#fff); border-radius:16px; padding:1rem 1.2rem; margin-bottom:.8rem; border-left:4px solid var(--blue); font-size:.9rem; }
+    .tip-card strong { font-family:var(--font-head); display:block; margin-bottom:.2rem; }
+
+    /* Child selector */
+    .child-select-row { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .child-select-row label { font-family:var(--font-head); font-weight:700; }
+    .child-select-row select { padding:.5rem 1rem; border:2px solid #e8e8e8; border-radius:10px; font-family:var(--font-head); font-size:.95rem; outline:none; }
+    .child-select-row select:focus { border-color:var(--blue); }
+
+    /* Add child modal */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter:blur(8px); z-index:1000; align-items:center; justify-content:center; }
+    .modal-overlay.show { display:flex; }
+    .modal { background:#fff; border-radius:28px; padding:2rem; width:92%; max-width:440px; position:relative; animation:cardIn .4s cubic-bezier(.34,1.56,.64,1) both; box-shadow:0 24px 64px rgba(0,0,0,.3); }
+    .modal-close { position:absolute; top:1rem; right:1rem; background:#f0f0f0; border:none; border-radius:50%; width:36px; height:36px; font-size:1.2rem; cursor:pointer; }
+    .modal-title { font-family:var(--font-head); font-size:1.5rem; font-weight:800; margin-bottom:1.2rem; }
+    .av-grid { display:flex; gap:.6rem; flex-wrap:wrap; margin:.5rem 0; }
+    .av-opt { font-size:1.8rem; padding:.3rem .5rem; border:3px solid #eee; border-radius:10px; background:#fff; cursor:pointer; transition:.2s; }
+    .av-opt.sel { border-color:var(--pink); background:#fff0f7; }
+    .modal-err { background:#fff0f3; color:#c92a2a; border:1.5px solid #ffc9c9; padding:.8rem 1rem; border-radius:10px; font-size:.9rem; margin-bottom:1rem; display:none; }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="../index.html" class="nav-logo">🌈 AutiLearn</a>
+  <div class="nav-links">
+    <a href="pricing.html" style="font-family:var(--font-head);font-weight:700;color:var(--purple);text-decoration:none;">💎 Plans</a>
+    <a href="payment-history.html" style="font-family:var(--font-head);font-weight:700;color:var(--blue);text-decoration:none;">💳 Billing</a>
+    <span id="navParent" style="font-family:var(--font-head);font-weight:700;color:var(--blue);">👨‍👩‍👧 Parent</span>
+    <button class="btn btn-outline" style="width:auto;padding:.4rem 1rem;font-size:.9rem;" onclick="logout()">🚪 Logout</button>
+  </div>
+</nav>
+
+<div class="parent-header">
+  <h1>👨‍👩‍👧 Parent Dashboard</h1>
+  <p>Track your child's learning progress and celebrate their growth!</p>
+</div>
+
+<div class="panel">
+  <!-- SUMMARY STATS -->
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+    <div class="stat-card" style="flex:1;min-width:120px;"><div class="stat-val" id="totalSessions" style="color:var(--blue);">—</div><div class="stat-label">Children</div></div>
+    <div class="stat-card" style="flex:1;min-width:120px;"><div class="stat-val" id="totalPoints"   style="color:var(--orange);">—</div><div class="stat-label">Total Stars</div></div>
+    <div class="stat-card" style="flex:1;min-width:120px;"><div class="stat-val" id="totalBadges"   style="color:var(--purple);">—</div><div class="stat-label">Badges</div></div>
+    <div class="stat-card" style="flex:1;min-width:120px;"><div class="stat-val" id="totalModules"  style="color:var(--green);">—</div><div class="stat-label">Lessons Done</div></div>
+  </div>
+
+  <!-- CHILD SELECTOR -->
+  <div class="child-select-row">
+    <label>View progress for:</label>
+    <select id="childSelect" onchange="loadChildProgress()"><option value="">-- Select a child --</option></select>
+    <button class="btn btn-secondary" style="width:auto;padding:.5rem 1.4rem;font-size:.9rem;" onclick="openAddModal()">➕ Add Child</button>
+  </div>
+
+  <!-- CHILD PROGRESS CARD -->
+  <div class="child-card" id="childProgressCard" style="display:none;">
+    <div class="child-card-head">
+      <div class="child-av" id="childAvatarDisp">🦁</div>
+      <div>
+        <div class="child-cname" id="childNameDisplay">—</div>
+        <div class="child-meta"  id="childMeta">—</div>
+      </div>
+    </div>
+    <table class="progress-table">
+      <thead><tr><th>Module</th><th>Status</th><th>Progress</th><th>Score</th></tr></thead>
+      <tbody id="progressRows"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:1.5rem;">Select a child above.</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- BADGES -->
+  <div class="report-section">
+    <h2>🏅 Badges Earned</h2>
+    <div class="badge-grid" id="parentBadges"></div>
+  </div>
+
+  <!-- TIPS -->
+  <div class="report-section">
+    <h2>💡 Tips for Parents</h2>
+    <div class="tip-card"><strong>🕐 Consistent Schedule</strong>Use AutiLearn at the same time each day to build a routine.</div>
+    <div class="tip-card"><strong>🎉 Celebrate Small Wins</strong>Each module completed is a big achievement. Praise your child!</div>
+    <div class="tip-card"><strong>🔊 Use Audio Together</strong>Sit with your child and listen to the letter/number sounds together.</div>
+    <div class="tip-card"><strong>📊 Track Weekly</strong>Check the progress table every week to see which areas need more practice.</div>
+    <div class="tip-card"><strong>🧩 Follow Their Lead</strong>Let your child pick which module to explore – choice builds confidence!</div>
+  </div>
+</div>
+
+<!-- ADD CHILD MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAddModal()">✕</button>
+    <div class="modal-title">➕ Add New Child</div>
+    <div class="modal-err" id="modalErr"></div>
+    <div class="form-group"><label>😊 Child's Name *</label><input type="text" id="m_name" placeholder="Child's full name"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group"><label>🎂 Age *</label><input type="number" id="m_age" value="7" min="2" max="18"/></div>
+      <div class="form-group"><label>🏷️ Username *</label><input type="text" id="m_user" placeholder="username123"/></div>
+    </div>
+    <div class="form-group"><label>🔑 Password *</label><input type="password" id="m_pass" placeholder="Simple password"/></div>
+    <div class="form-group">
+      <label>🦁 Avatar</label>
+      <div class="av-grid">
+        <button class="av-opt sel" onclick="pickAv(this,'🦁')">🦁</button>
+        <button class="av-opt"     onclick="pickAv(this,'🐯')">🐯</button>
+        <button class="av-opt"     onclick="pickAv(this,'🐸')">🐸</button>
+        <button class="av-opt"     onclick="pickAv(this,'🐼')">🐼</button>
+        <button class="av-opt"     onclick="pickAv(this,'🦊')">🦊</button>
+        <button class="av-opt"     onclick="pickAv(this,'🐨')">🐨</button>
+        <button class="av-opt"     onclick="pickAv(this,'🚀')">🚀</button>
+        <button class="av-opt"     onclick="pickAv(this,'⭐')">⭐</button>
+      </div>
+    </div>
+    <button class="btn btn-primary mt-2" id="addChildBtn" onclick="addChild()">🚀 Add Child</button>
+  </div>
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+  if (!sessionStorage.getItem('parentId')) window.location.href = 'login-parent.html';
+
+  const parentId   = parseInt(sessionStorage.getItem('parentId'));
+  const parentName = sessionStorage.getItem('parentName') || 'Parent';
+  document.getElementById('navParent').textContent = '👋 ' + parentName;
+
+  const MODULES=[
+    {name:'Alphabets',icon:'🔤'},{name:'Numbers',icon:'🔢'},
+    {name:'Colors',icon:'🎨'},{name:'Shapes',icon:'🔷'},
+    {name:'Memory Game',icon:'🃏'},{name:'Quiz',icon:'❓'}
+  ];
+  const BADGES=[
+    {name:'Star Learner',emoji:'⭐'},{name:'Super Star',emoji:'🌟'},
+    {name:'Champion',emoji:'🏆'},{name:'First Step',emoji:'👣'},
+    {name:'Explorer',emoji:'🧭'},{name:'Master Learner',emoji:'🎓'}
+  ];
+  let modalAvatar = '🦁';
+  let allChildren = [];
+
+  async function loadDashboard(){
+    try {
+      const r = await fetch('/api/parent/dashboard/'+parentId);
+      const d = await r.json();
+      if(!d.success) return;
+
+      document.getElementById('totalSessions').textContent = d.stats.totalChildren  || '0';
+      document.getElementById('totalPoints').textContent   = d.stats.totalScore     || '0';
+      document.getElementById('totalBadges').textContent   = d.stats.totalBadges    || '0';
+      document.getElementById('totalModules').textContent  = d.stats.totalLessons   || '0';
+
+      allChildren = d.children || [];
+      const sel = document.getElementById('childSelect');
+      sel.innerHTML = '<option value="">-- Select a child --</option>';
+      allChildren.forEach(c=>{
+        sel.innerHTML += `<option value="${c.childId}">${c.avatar||'🦁'} ${c.fullName} (Age ${c.age})</option>`;
+      });
+
+      renderBadges(d.stats.totalBadges || 0);
+    } catch(e){
+      // Demo fallback
+      renderBadges(0);
+    }
+  }
+
+  async function loadChildProgress(){
+    const childId = document.getElementById('childSelect').value;
+    if(!childId){ document.getElementById('childProgressCard').style.display='none'; return; }
+
+    try {
+      const r = await fetch('/api/parent/progress/'+childId);
+      const d = await r.json();
+      if(!d.success) return;
+
+      document.getElementById('childProgressCard').style.display = 'block';
+      document.getElementById('childNameDisplay').textContent = d.childName || '—';
+      document.getElementById('childAvatarDisp').textContent  = d.avatar    || '🦁';
+      document.getElementById('childMeta').textContent        = `Age: ${d.age||'—'}  |  Total Stars: ⭐ ${d.totalScore||0}`;
+
+      const tbody = document.getElementById('progressRows');
+      tbody.innerHTML = '';
+      MODULES.forEach((m,i)=>{
+        const p = (d.progress||[]).find(x=>x.moduleId===(i+1)) || {};
+        const pct = Math.min(Math.round(((p.score||0)/40)*100),100);
+        tbody.innerHTML += `<tr>
+          <td>${m.icon} ${m.name}</td>
+          <td>${p.completed===1?'✅ Done':pct>0?'🔄 In Progress':'⬜ Not Started'}</td>
+          <td><div class="mini-bar"><div class="mini-fill" style="width:${pct}%"></div></div> ${pct}%</td>
+          <td>⭐ ${p.score||0} pts</td>
+        </tr>`;
+      });
+    } catch(e){}
+  }
+
+  function renderBadges(earned){
+    const grid = document.getElementById('parentBadges');
+    grid.innerHTML = '';
+    BADGES.forEach((b,i)=>{
+      grid.innerHTML += `<div class="badge-item ${i<earned?'earned':''}">
+        <div class="badge-emoji">${b.emoji}</div>
+        <div class="badge-name">${b.name}</div>
+      </div>`;
+    });
+  }
+
+  function openAddModal()  { document.getElementById('addModal').classList.add('show'); }
+  function closeAddModal() { document.getElementById('addModal').classList.remove('show'); document.getElementById('modalErr').style.display='none'; }
+  function pickAv(btn, emoji){ document.querySelectorAll('.av-opt').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); modalAvatar=emoji; }
+
+  async function addChild(){
+    const name=document.getElementById('m_name').value.trim(),
+          age =parseInt(document.getElementById('m_age').value)||7,
+          user=document.getElementById('m_user').value.trim(),
+          pass=document.getElementById('m_pass').value;
+    const errEl=document.getElementById('modalErr');
+    if(!name||!user||!pass){ errEl.textContent='Fill all required fields.'; errEl.style.display='block'; return; }
+    const btn=document.getElementById('addChildBtn'); btn.disabled=true; btn.textContent='Adding…';
+    try {
+      const r=await fetch('/api/parent/add-child',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({parentId,fullName:name,age,username:user,password:pass,avatar:modalAvatar})
+      });
+      const d=await r.json();
+      if(d.success){ closeAddModal(); loadDashboard(); }
+      else { errEl.textContent=d.message; errEl.style.display='block'; }
+    } catch(e){ errEl.textContent='Server error.'; errEl.style.display='block'; }
+    finally { btn.disabled=false; btn.textContent='🚀 Add Child'; }
+  }
+
+  function logout(){ sessionStorage.clear(); window.location.href='../index.html'; }
+  loadDashboard();
+</script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutiLearn – Alphabets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    body { background: linear-gradient(135deg,#fff0f7,#fffdf9); min-height:100vh; }
+    .module-hero {
+      text-align:center; padding:2rem;
+      background: linear-gradient(135deg,#ff6eb4,#ffa94d);
+      color:#fff;
+    }
+    .module-hero h1 { font-family:var(--font-head); font-size:2.5rem; font-weight:800; }
+    .module-hero p  { font-size:1.1rem; opacity:.9; }
+    .speak-btn {
+      display:inline-flex; align-items:center; gap:.5rem;
+      font-family:var(--font-head); font-size:1rem; font-weight:700;
+      background:rgba(255,255,255,.25); color:#fff;
+      border:2px solid rgba(255,255,255,.5); border-radius:50px;
+      padding:.5rem 1.5rem; cursor:pointer; margin-top:1rem;
+      transition:.2s;
+    }
+    .speak-btn:hover { background:rgba(255,255,255,.4); }
+    .learn-card {
+      position:relative; overflow:visible;
+    }
+    .learn-card .lc-word { margin-top:.2rem; }
+    .learn-card:active { transform:scale(.95)!important; }
+
+    /* big letter view */
+    .big-letter-overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,.5); backdrop-filter:blur(6px);
+      z-index:999; align-items:center; justify-content:center;
+    }
+    .big-letter-overlay.show { display:flex; }
+    .big-letter-card {
+      background:#fff; border-radius:32px; padding:3rem;
+      text-align:center; max-width:320px; width:90%;
+      animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both;
+      box-shadow:0 20px 60px rgba(0,0,0,.3);
+    }
+    .big-ltr { font-family:var(--font-head); font-size:8rem; font-weight:800;
+               background:linear-gradient(135deg,var(--pink),var(--orange));
+               -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+               line-height:1; }
+    .big-word { font-family:var(--font-head); font-size:1.8rem; font-weight:700; color:var(--text); margin:.5rem 0; }
+    .big-emoji { font-size:4rem; margin-bottom:.5rem; }
+    .close-overlay {
+      position:absolute; top:1rem; right:1rem;
+      background:#eee; border:none; border-radius:50%; width:36px; height:36px;
+      font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="dashboard-child.html" class="nav-logo">← Back</a>
+  <div class="nav-links">
+    <span id="navPoints" class="score-badge">⭐ 0 pts</span>
+  </div>
+</nav>
+
+<div class="module-hero">
+  <h1>🔤 Alphabet Adventure</h1>
+  <p>Tap any letter to hear it and learn a word!</p>
+  <button class="speak-btn" onclick="speakAll()">🔊 Hear All Letters</button>
+</div>
+
+<div class="learn-cards" id="alphabetGrid"></div>
+
+<!-- Big Letter Overlay -->
+<div class="big-letter-overlay" id="overlay" onclick="closeOverlay(event)">
+  <div class="big-letter-card" id="bigCard">
+    <button class="close-overlay" onclick="hideOverlay()">✕</button>
+    <div class="big-emoji"  id="bigEmoji">🍎</div>
+    <div class="big-ltr"    id="bigLetter">A</div>
+    <div class="big-word"   id="bigWord">Apple</div>
+    <button class="btn btn-primary mt-2" style="width:auto;padding:.6rem 2rem;" onclick="speakCurrent()">🔊 Say it!</button>
+  </div>
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+  const ALPHABET = [
+    {l:'A',w:'Apple',e:'🍎'},   {l:'B',w:'Ball',e:'⚽'},    {l:'C',w:'Cat',e:'🐱'},
+    {l:'D',w:'Dog',e:'🐶'},     {l:'E',w:'Elephant',e:'🐘'},{l:'F',w:'Fish',e:'🐠'},
+    {l:'G',w:'Grape',e:'🍇'},   {l:'H',w:'Hat',e:'🎩'},     {l:'I',w:'Ice Cream',e:'🍦'},
+    {l:'J',w:'Juice',e:'🧃'},   {l:'K',w:'Kite',e:'🪁'},    {l:'L',w:'Lion',e:'🦁'},
+    {l:'M',w:'Moon',e:'🌙'},    {l:'N',w:'Nest',e:'🪺'},    {l:'O',w:'Orange',e:'🍊'},
+    {l:'P',w:'Pig',e:'🐷'},     {l:'Q',w:'Queen',e:'👑'},   {l:'R',w:'Rainbow',e:'🌈'},
+    {l:'S',w:'Star',e:'⭐'},    {l:'T',w:'Tiger',e:'🐯'},   {l:'U',w:'Umbrella',e:'☂️'},
+    {l:'V',w:'Violin',e:'🎻'},  {l:'W',w:'Whale',e:'🐋'},   {l:'X',w:'Xylophone',e:'🎵'},
+    {l:'Y',w:'Yak',e:'🦬'},     {l:'Z',w:'Zebra',e:'🦓'}
+  ];
+
+  let currentLetter = null;
+  const grid = document.getElementById('alphabetGrid');
+
+  ALPHABET.forEach(item=>{
+    const card = document.createElement('div');
+    card.className='learn-card';
+    card.innerHTML=`<div class="lc-letter">${item.l}</div><div class="lc-word">${item.e} ${item.w}</div>`;
+    card.onclick=()=>showLetter(item);
+    grid.appendChild(card);
+  });
+
+  function showLetter(item){
+    currentLetter = item;
+    document.getElementById('bigEmoji').textContent  = item.e;
+    document.getElementById('bigLetter').textContent = item.l;
+    document.getElementById('bigWord').textContent   = item.w;
+    document.getElementById('overlay').classList.add('show');
+    speakCurrent();
+    awardPoints(5);
+  }
+
+  function speakCurrent(){
+    if(!currentLetter) return;
+    const u = new SpeechSynthesisUtterance(currentLetter.l + '... ' + currentLetter.w);
+    u.rate=0.8; u.pitch=1.2;
+    window.speechSynthesis.speak(u);
+  }
+
+  function speakAll(){
+    const text = ALPHABET.map(a=>a.l).join(', ');
+    const u = new SpeechSynthesisUtterance('A B C D E F G H I J K L M N O P Q R S T U V W X Y Z');
+    u.rate=0.7; u.pitch=1.1;
+    window.speechSynthesis.speak(u);
+  }
+
+  function hideOverlay(){ document.getElementById('overlay').classList.remove('show'); }
+  function closeOverlay(e){ if(e.target===document.getElementById('overlay')) hideOverlay(); }
+
+  function awardPoints(pts){
+    let cur=parseInt(sessionStorage.getItem('childPoints')||'0');
+    cur+=pts; sessionStorage.setItem('childPoints',cur);
+    const navEl=document.getElementById('navPoints');
+    if(navEl) navEl.textContent='⭐ '+cur+' pts';
+    if(pts>=10){ saveProgress(1, pts); }
+  }
+
+  document.getElementById('navPoints').textContent =
+    '⭐ '+(sessionStorage.getItem('childPoints')||'0')+' pts';
+</script>
+</body>
+</html>

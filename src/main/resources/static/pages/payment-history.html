@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutiLearn – Payment History</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    body { background:#f5f7fa; }
+    .page-header {
+      background:linear-gradient(135deg,#339af0,#9775fa);
+      color:#fff; padding:2rem; text-align:center;
+    }
+    .page-header h1 { font-family:var(--font-head); font-size:2rem; font-weight:800; }
+    .panel { max-width:900px; margin:2rem auto; padding:0 2rem; }
+
+    /* Active Plan Card */
+    .active-plan-card {
+      background:linear-gradient(135deg,#ff6eb4,#ffa94d);
+      border-radius:24px; padding:1.8rem 2rem; color:#fff;
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:1rem; margin-bottom:2rem;
+      box-shadow:0 8px 32px rgba(255,110,180,.35);
+    }
+    .plan-badge { font-size:3rem; }
+    .plan-info h2 { font-family:var(--font-head); font-size:1.6rem; font-weight:800; }
+    .plan-info p  { opacity:.9; font-size:.9rem; }
+    .plan-actions { display:flex; gap:.8rem; flex-wrap:wrap; }
+    .btn-white {
+      background:#fff; color:var(--pink);
+      font-family:var(--font-head); font-weight:700; font-size:.95rem;
+      padding:.5rem 1.4rem; border-radius:50px; border:none; cursor:pointer;
+      transition:.2s; text-decoration:none;
+    }
+    .btn-white:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,.15); }
+    .btn-white-outline {
+      background:transparent; color:#fff;
+      border:2px solid rgba(255,255,255,.7);
+      font-family:var(--font-head); font-weight:700; font-size:.95rem;
+      padding:.5rem 1.4rem; border-radius:50px; cursor:pointer; transition:.2s;
+    }
+    .btn-white-outline:hover { background:rgba(255,255,255,.15); }
+
+    /* Transactions Table */
+    .section-box { background:#fff; border-radius:24px; box-shadow:var(--shadow); overflow:hidden; margin-bottom:2rem; }
+    .section-box h2 { font-family:var(--font-head); font-size:1.3rem; font-weight:800; padding:1.2rem 1.5rem; border-bottom:1px solid #f0f0f0; }
+    .txn-table { width:100%; border-collapse:collapse; }
+    .txn-table th { background:#fafafa; font-family:var(--font-head); font-size:.85rem; color:#666; padding:.7rem 1.2rem; text-align:left; }
+    .txn-table td { padding:.8rem 1.2rem; border-bottom:1px solid #f8f8f8; font-family:var(--font-body); font-size:.9rem; }
+    .txn-table tr:last-child td { border:none; }
+    .status-pill {
+      display:inline-block; padding:.25rem .8rem; border-radius:50px;
+      font-family:var(--font-head); font-size:.8rem; font-weight:700;
+    }
+    .status-success { background:#ebfbee; color:#1b7340; }
+    .status-pending { background:#fff9db; color:#e67700; }
+    .status-failed  { background:#fff0f3; color:#c92a2a; }
+    .status-refunded{ background:#e0f0ff; color:#1864ab; }
+
+    .btn-invoice {
+      background:#f0f4ff; color:var(--blue);
+      border:none; border-radius:8px; padding:.3rem .8rem;
+      font-family:var(--font-head); font-size:.8rem; font-weight:700;
+      cursor:pointer; transition:.2s;
+    }
+    .btn-invoice:hover { background:var(--blue); color:#fff; }
+
+    /* Cancel Modal */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter:blur(8px); z-index:1000; align-items:center; justify-content:center; }
+    .modal-overlay.show { display:flex; }
+    .modal { background:#fff; border-radius:24px; padding:2rem; max-width:400px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.3); text-align:center; animation:cardIn .4s cubic-bezier(.34,1.56,.64,1) both; }
+    .modal h3 { font-family:var(--font-head); font-size:1.4rem; font-weight:800; margin-bottom:.5rem; }
+    .modal p  { font-family:var(--font-body); color:var(--muted); margin-bottom:1.5rem; font-size:.9rem; }
+    .modal-btns { display:flex; gap:1rem; justify-content:center; }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="dashboard-parent.html" class="nav-logo">← Dashboard</a>
+  <div class="nav-links">
+    <span id="navParent" style="font-family:var(--font-head);font-weight:700;color:var(--blue);">👨‍👩‍👧</span>
+    <button class="btn btn-outline" style="width:auto;padding:.4rem 1rem;font-size:.9rem;" onclick="sessionStorage.clear();window.location.href='../index.html'">🚪 Logout</button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>💳 Billing & Payments</h1>
+  <p>Manage your subscription and view payment history</p>
+</div>
+
+<div class="panel">
+
+  <!-- Active Plan -->
+  <div class="active-plan-card">
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <div class="plan-badge">🌟</div>
+      <div class="plan-info">
+        <h2 id="activePlanName">Pro Plan – Active</h2>
+        <p>Next billing: <strong id="nextBilling">April 22, 2025</strong> &nbsp;|&nbsp; ₹<span id="activePlanAmt">412</span> (incl. GST)</p>
+      </div>
+    </div>
+    <div class="plan-actions">
+      <a href="pricing.html" class="btn-white">⬆️ Upgrade</a>
+      <button class="btn-white-outline" onclick="openCancelModal()">❌ Cancel Plan</button>
+    </div>
+  </div>
+
+  <!-- Transaction History -->
+  <div class="section-box">
+    <h2>📋 Transaction History</h2>
+    <table class="txn-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Plan</th>
+          <th>Amount</th>
+          <th>Payment ID</th>
+          <th>Method</th>
+          <th>Status</th>
+          <th>Invoice</th>
+        </tr>
+      </thead>
+      <tbody id="txnBody">
+        <!-- Populated by JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Payment Methods -->
+  <div class="section-box">
+    <h2>💳 Saved Payment Methods</h2>
+    <div style="padding:1rem 1.5rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;background:#f9f9f9;border-radius:14px;margin-bottom:.8rem;">
+        <div style="font-family:var(--font-body);">
+          <strong>💳 Visa ending in 4242</strong><br>
+          <span style="color:var(--muted);font-size:.85rem;">Expires 08/27</span>
+        </div>
+        <span class="status-pill status-success">Default</span>
+      </div>
+      <button class="btn btn-outline" style="width:auto;padding:.5rem 1.4rem;font-size:.9rem;" onclick="alert('Razorpay card management would open here in production.')">+ Add Payment Method</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Cancel Subscription Modal -->
+<div class="modal-overlay" id="cancelModal">
+  <div class="modal">
+    <div style="font-size:3rem;margin-bottom:.5rem;">😢</div>
+    <h3>Cancel Subscription?</h3>
+    <p>You'll lose access to all premium modules on <strong id="cancelDate">April 22, 2025</strong>. Your child's progress data will be saved for 30 days.</p>
+    <div class="modal-btns">
+      <button class="btn btn-primary" style="flex:1;" onclick="closeCancelModal()">Keep Plan 💙</button>
+      <button class="btn btn-outline" style="flex:1;" onclick="confirmCancel()">Yes, Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Demo transaction data
+  const TRANSACTIONS = [
+    {date:'22 Mar 2025', plan:'Pro',   amount:'₹412', id:'pay_QX9kzABcDe1234', method:'UPI',         status:'success'},
+    {date:'22 Feb 2025', plan:'Pro',   amount:'₹412', id:'pay_QW8jaXYzMn5678', method:'Visa ••4242', status:'success'},
+    {date:'22 Jan 2025', plan:'Basic', amount:'₹235', id:'pay_QV7ibWXyLm9012', method:'Net Banking',  status:'success'},
+    {date:'22 Dec 2024', plan:'Basic', amount:'₹235', id:'pay_QU6haVWxKl3456', method:'UPI',         status:'success'},
+    {date:'22 Nov 2024', plan:'Basic', amount:'₹235', id:'pay_QT5gZUVwJk7890', method:'Paytm',       status:'refunded'},
+  ];
+
+  const parentName = sessionStorage.getItem('parentName') || 'Parent';
+  document.getElementById('navParent').textContent = '👋 ' + parentName;
+
+  // Set next billing date
+  const nextDate = new Date();
+  nextDate.setMonth(nextDate.getMonth() + 1);
+  const dateStr = nextDate.toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'});
+  document.getElementById('nextBilling').textContent = dateStr;
+  document.getElementById('cancelDate').textContent  = dateStr;
+
+  // Populate transaction table
+  const tbody = document.getElementById('txnBody');
+  TRANSACTIONS.forEach(t => {
+    const statusClass = {success:'status-success', refunded:'status-refunded', failed:'status-failed', pending:'status-pending'}[t.status];
+    const statusLabel = t.status.charAt(0).toUpperCase() + t.status.slice(1);
+    tbody.innerHTML += `
+      <tr>
+        <td>${t.date}</td>
+        <td><strong>${t.plan}</strong> Plan</td>
+        <td style="font-weight:700;color:var(--green);">${t.amount}</td>
+        <td style="font-family:monospace;font-size:.8rem;color:var(--muted);">${t.id}</td>
+        <td>${t.method}</td>
+        <td><span class="status-pill ${statusClass}">${statusLabel}</span></td>
+        <td><button class="btn-invoice" onclick="downloadInvoice('${t.id}')">📄 PDF</button></td>
+      </tr>`;
+  });
+
+  // Load active plan from API
+  const parentId = sessionStorage.getItem('parentId');
+  if(parentId){
+    fetch('/api/payment/subscription/'+parentId)
+      .then(r=>r.json())
+      .then(d=>{
+        if(d.plan) document.getElementById('activePlanName').textContent = d.plan + ' Plan – Active';
+        if(d.amount) document.getElementById('activePlanAmt').textContent = d.amount;
+      }).catch(()=>{});
+  }
+
+  function openCancelModal()  { document.getElementById('cancelModal').classList.add('show'); }
+  function closeCancelModal() { document.getElementById('cancelModal').classList.remove('show'); }
+
+  function confirmCancel(){
+    fetch('/api/payment/cancel', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({parentId: sessionStorage.getItem('parentId')})
+    })
+    .then(()=>{})
+    .catch(()=>{});
+    document.getElementById('activePlanName').textContent = 'Free Plan (Cancelled)';
+    closeCancelModal();
+    alert('Subscription cancelled. You have access until ' + dateStr + '.');
+  }
+
+  function downloadInvoice(payId){
+    alert('Invoice for ' + payId + ' would be downloaded as PDF.\n(Backend generates PDF in production.)');
+  }
+</script>
+</body>
+</html>

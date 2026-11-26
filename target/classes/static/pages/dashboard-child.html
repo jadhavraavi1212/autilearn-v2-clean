@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutiLearn – My Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    body { background:#fffdf9; }
+    .greeting-banner {
+      background:linear-gradient(135deg,#ff6eb4,#ffa94d,#ffd43b);
+      color:#fff; padding:1.2rem 2rem; text-align:center;
+      font-family:var(--font-head); font-size:1.2rem; font-weight:700;
+    }
+    .modules-section { padding:2rem; max-width:1100px; margin:0 auto; }
+    .section-label { font-family:var(--font-head); font-size:1.6rem; font-weight:800; color:var(--text); margin-bottom:1.2rem; }
+    .badge-earned-row { display:flex; gap:.8rem; flex-wrap:wrap; margin:1.5rem 0 2.5rem; }
+    .badge-chip {
+      background:#fff; border-radius:50px; padding:.4rem 1rem;
+      font-family:var(--font-head); font-size:.9rem; font-weight:700;
+      box-shadow:var(--shadow); border:2px solid #ffe0ef;
+      display:flex; align-items:center; gap:.4rem; transition:all .3s;
+    }
+    .badge-chip.earned { border-color:var(--pink); background:#fff0f7; }
+    .stats-row { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:2rem; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="../index.html" class="nav-logo">🌈 AutiLearn</a>
+  <div class="nav-links">
+    <span id="navPoints" class="score-badge">⭐ 0 pts</span>
+    <button class="btn btn-outline" style="width:auto;padding:.4rem 1rem;font-size:.9rem;" onclick="logout()">🚪 Logout</button>
+  </div>
+</nav>
+
+<div class="greeting-banner" id="greetingBanner">🌟 Welcome back, Superstar! Ready to learn today? 🎉</div>
+
+<div class="dash-header">
+  <div class="dash-user" style="display:flex;align-items:center;gap:1rem;">
+    <div class="dash-avatar" id="dashAvatar">🦁</div>
+    <div>
+      <div class="dash-name"   id="dashName">Loading…</div>
+      <div class="dash-points" id="dashPoints">⭐ 0 points earned</div>
+    </div>
+  </div>
+  <div class="stats-row" style="margin:0;">
+    <div class="stat-card"><div class="stat-val" id="statModules">0</div><div class="stat-label">Modules Done</div></div>
+    <div class="stat-card"><div class="stat-val" id="statBadges">0</div><div class="stat-label">Badges</div></div>
+    <div class="stat-card"><div class="stat-val" id="statPoints">0</div><div class="stat-label">Total Points</div></div>
+  </div>
+</div>
+
+<div class="modules-section">
+  <!-- BADGES -->
+  <div class="section-label">🏅 My Badges</div>
+  <div class="badge-earned-row" id="badgeRow">
+    <span class="badge-chip" id="badge0" style="opacity:.35;">⭐ Star Learner</span>
+    <span class="badge-chip" id="badge1" style="opacity:.35;">🌟 Super Star</span>
+    <span class="badge-chip" id="badge2" style="opacity:.35;">🏆 Champion</span>
+    <span class="badge-chip" id="badge3" style="opacity:.35;">👣 First Step</span>
+    <span class="badge-chip" id="badge4" style="opacity:.35;">🧭 Explorer</span>
+    <span class="badge-chip" id="badge5" style="opacity:.35;">🎓 Master Learner</span>
+  </div>
+
+  <!-- MODULES -->
+  <div class="section-label">📚 Choose a Module</div>
+  <div class="module-grid">
+    <div class="module-card pink"   onclick="goTo('module-alphabets.html')">
+      <div class="module-icon">🔤</div><div class="module-name">Alphabets</div>
+      <div class="module-progress-bar"><div class="module-progress-fill" style="width:0%" id="prog-0"></div></div>
+    </div>
+    <div class="module-card orange" onclick="goTo('module-numbers.html')">
+      <div class="module-icon">🔢</div><div class="module-name">Numbers</div>
+      <div class="module-progress-bar"><div class="module-progress-fill" style="width:0%;background:linear-gradient(90deg,var(--orange),var(--yellow));" id="prog-1"></div></div>
+    </div>
+    <div class="module-card green"  onclick="goTo('module-colors.html')">
+      <div class="module-icon">🎨</div><div class="module-name">Colors</div>
+      <div class="module-progress-bar"><div class="module-progress-fill" style="width:0%;background:linear-gradient(90deg,var(--green),#38d9a9);" id="prog-2"></div></div>
+    </div>
+    <div class="module-card blue"   onclick="goTo('module-shapes.html')">
+      <div class="module-icon">🔷</div><div class="module-name">Shapes</div>
+      <div class="module-progress-bar"><div class="module-progress-fill" style="width:0%;background:linear-gradient(90deg,var(--blue),var(--purple));" id="prog-3"></div></div>
+    </div>
+    <div class="module-card purple" onclick="goTo('module-game.html')">
+      <div class="module-icon">🃏</div><div class="module-name">Memory Game</div>
+      <div class="module-progress-bar"><div class="module-progress-fill" style="width:0%;background:linear-gradient(90deg,var(--purple),var(--pink));" id="prog-4"></div></div>
+    </div>
+    <div class="module-card yellow" onclick="goTo('module-quiz.html')">
+      <div class="module-icon">❓</div><div class="module-name">Quick Quiz</div>
+      <div class="module-progress-bar"><div class="module-progress-fill" style="width:0%;background:linear-gradient(90deg,var(--yellow),var(--orange));" id="prog-5"></div></div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+  // Auth guard
+  if (!sessionStorage.getItem('childId')) window.location.href = 'login-child.html';
+
+  const childName   = sessionStorage.getItem('childName')   || 'Superstar';
+  const childAvatar = sessionStorage.getItem('childAvatar') || '🦁';
+  const childPoints = parseInt(sessionStorage.getItem('childPoints') || '0');
+  const childId     = sessionStorage.getItem('childId');
+
+  document.getElementById('dashName').textContent   = '👋 ' + childName;
+  document.getElementById('dashAvatar').textContent = childAvatar;
+  document.getElementById('dashPoints').textContent = '⭐ ' + childPoints + ' points earned';
+  document.getElementById('navPoints').textContent  = '⭐ ' + childPoints + ' pts';
+  document.getElementById('greetingBanner').textContent = '🌟 Welcome back, ' + childName + '! Ready to learn today? 🎉';
+  document.getElementById('statPoints').textContent  = childPoints;
+
+  // Update badges by points
+  const BADGE_THRESHOLDS = [10, 50, 150, 300, 500, 1000];
+  BADGE_THRESHOLDS.forEach((t,i)=>{
+    if(childPoints >= t){
+      const b = document.getElementById('badge'+i);
+      if(b){ b.style.opacity='1'; b.classList.add('earned'); }
+    }
+  });
+
+  // Load progress from backend
+  if(childId){
+    fetch('/api/progress/'+childId)
+      .then(r=>r.json())
+      .then(data=>{
+        const progress = data.progress || [];
+        let completedCount = 0;
+        // Map moduleId (1-6) to progress bar index (0-5)
+        progress.forEach(p=>{
+          const idx = (p.moduleId||1) - 1;
+          const el = document.getElementById('prog-'+idx);
+          const pct = Math.min(Math.round((p.score/40)*100), 100);
+          if(el) el.style.width = pct + '%';
+          if(p.completed === 1) completedCount++;
+        });
+        document.getElementById('statModules').textContent = completedCount;
+        document.getElementById('statBadges').textContent  = BADGE_THRESHOLDS.filter(t=>childPoints>=t).length;
+        document.getElementById('statPoints').textContent  = data.totalScore || childPoints;
+      })
+      .catch(()=>{
+        // Fallback: show some progress from localStorage
+        document.getElementById('statModules').textContent = '0';
+        document.getElementById('statBadges').textContent  = BADGE_THRESHOLDS.filter(t=>childPoints>=t).length;
+      });
+  }
+
+  function goTo(page){ window.location.href = page; }
+  function logout(){ sessionStorage.clear(); window.location.href='../index.html'; }
+</script>
+</body>
+</html>

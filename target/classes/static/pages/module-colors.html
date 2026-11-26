@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutiLearn – Colors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    body { background:#fffdf9; min-height:100vh; }
+    .module-hero { text-align:center; padding:2rem;
+      background:linear-gradient(135deg,#ff6eb4,#ffa94d,#ffd43b,#51cf66,#339af0,#9775fa);
+      color:#fff; }
+    .module-hero h1 { font-family:var(--font-head); font-size:2.5rem; font-weight:800; text-shadow:0 2px 8px rgba(0,0,0,.2); }
+
+    .color-grid { display:flex; flex-wrap:wrap; gap:1.2rem; justify-content:center; padding:2rem; }
+    .color-swatch {
+      width:160px; border-radius:24px; overflow:hidden; cursor:pointer;
+      box-shadow:var(--shadow); border:3px solid rgba(255,255,255,.5);
+      transition:.3s; font-family:var(--font-head);
+    }
+    .color-swatch:hover { transform:scale(1.08) rotate(1deg); box-shadow:var(--shadow-hover); }
+    .swatch-box { height:100px; display:flex; align-items:center; justify-content:center; font-size:3rem; }
+    .swatch-info { background:#fff; padding:.6rem 1rem; text-align:center; }
+    .swatch-name { font-weight:800; font-size:1.1rem; }
+    .swatch-hex  { font-size:.8rem; color:var(--muted); font-family:var(--font-body); }
+
+    /* MATCH GAME */
+    .match-section { max-width:700px; margin:0 auto; padding:2rem; }
+    .match-section h2 { font-family:var(--font-head); font-size:1.6rem; text-align:center; margin-bottom:1.5rem; }
+    .match-prompt {
+      background:#fff; border-radius:20px; padding:1.5rem; text-align:center;
+      box-shadow:var(--shadow); margin-bottom:1.5rem;
+    }
+    .match-color-show { width:100px; height:100px; border-radius:20px; margin:0 auto .8rem; box-shadow:0 6px 20px rgba(0,0,0,.15); }
+    .match-q { font-family:var(--font-head); font-size:1.3rem; font-weight:700; }
+    .match-opts { display:flex; gap:.8rem; flex-wrap:wrap; justify-content:center; }
+    .match-opt {
+      padding:.6rem 1.4rem; border-radius:50px; border:none;
+      font-family:var(--font-head); font-size:1rem; font-weight:700;
+      color:#fff; cursor:pointer; transition:.2s;
+      box-shadow:0 4px 12px rgba(0,0,0,.15);
+    }
+    .match-opt:hover { transform:scale(1.08); }
+    .match-feedback { text-align:center; font-family:var(--font-head); font-size:1.3rem; font-weight:700; min-height:2rem; margin-top:.8rem; }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="dashboard-child.html" class="nav-logo">← Back</a>
+  <div class="nav-links"><span id="navPoints" class="score-badge">⭐ 0 pts</span></div>
+</nav>
+
+<div class="module-hero">
+  <h1>🎨 Color World</h1>
+  <p>Tap colors to learn their names, then play the matching game!</p>
+</div>
+
+<!-- COLOR CARDS -->
+<div class="color-grid" id="colorGrid"></div>
+
+<!-- MATCH GAME -->
+<div class="match-section">
+  <h2>🎯 Match the Color!</h2>
+  <div class="match-prompt">
+    <div class="match-color-show" id="matchShow"></div>
+    <div class="match-q">What color is this?</div>
+  </div>
+  <div class="match-opts" id="matchOpts"></div>
+  <div class="match-feedback" id="matchFeedback"></div>
+  <div style="text-align:center;margin-top:1rem;">
+    <button class="btn btn-green" style="width:auto;padding:.6rem 2rem;" onclick="nextMatch()">Next ➡️</button>
+  </div>
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+  const COLORS=[
+    {name:'Red',    hex:'#f03e3e', emoji:'🍎'},{name:'Orange', hex:'#fd7e14',emoji:'🍊'},
+    {name:'Yellow', hex:'#fcc419', emoji:'🌟'},{name:'Green',  hex:'#40c057',emoji:'🌿'},
+    {name:'Blue',   hex:'#339af0', emoji:'💧'},{name:'Purple', hex:'#9775fa',emoji:'🔮'},
+    {name:'Pink',   hex:'#f783ac', emoji:'🌸'},{name:'Brown',  hex:'#a0522d',emoji:'🍫'},
+    {name:'Black',  hex:'#212529', emoji:'🖤'},{name:'White',  hex:'#dee2e6',emoji:'🤍'},
+    {name:'Grey',   hex:'#868e96', emoji:'🐘'},{name:'Gold',   hex:'#fab005',emoji:'⭐'}
+  ];
+
+  let currentColor=null;
+
+  // Build color cards
+  const grid=document.getElementById('colorGrid');
+  COLORS.forEach(c=>{
+    const div=document.createElement('div');
+    div.className='color-swatch';
+    div.innerHTML=`<div class="swatch-box" style="background:${c.hex}">${c.emoji}</div>
+                   <div class="swatch-info">
+                     <div class="swatch-name">${c.name}</div>
+                     <div class="swatch-hex">${c.hex}</div>
+                   </div>`;
+    div.onclick=()=>{ speak(c.name); awardPoints(3); };
+    grid.appendChild(div);
+  });
+
+  function nextMatch(){
+    document.getElementById('matchFeedback').textContent='';
+    currentColor=COLORS[Math.floor(Math.random()*COLORS.length)];
+    document.getElementById('matchShow').style.background=currentColor.hex;
+
+    const opts=new Set([currentColor.name]);
+    while(opts.size<4) opts.add(COLORS[Math.floor(Math.random()*COLORS.length)].name);
+    const arr=[...opts].sort(()=>Math.random()-.5);
+
+    const div=document.getElementById('matchOpts');
+    div.innerHTML='';
+    arr.forEach(name=>{
+      const c=COLORS.find(x=>x.name===name);
+      const b=document.createElement('button');
+      b.className='match-opt';
+      b.style.background=c?c.hex:'#ccc';
+      b.textContent=name;
+      b.onclick=()=>checkMatch(name,b);
+      div.appendChild(b);
+    });
+  }
+
+  function checkMatch(name,btn){
+    const fb=document.getElementById('matchFeedback');
+    if(name===currentColor.name){
+      fb.textContent='🎉 Correct! That\'s '+name+'!';
+      speak('Correct! That is '+name);
+      awardPoints(10);
+      setTimeout(nextMatch,1500);
+    } else {
+      fb.textContent='❌ Not quite! Look at the color carefully!';
+      btn.style.opacity='.4';
+    }
+  }
+
+  function speak(text){
+    const u=new SpeechSynthesisUtterance(text);
+    u.rate=0.8; u.pitch=1.2; window.speechSynthesis.speak(u);
+  }
+  function awardPoints(pts){
+    let cur=parseInt(sessionStorage.getItem('childPoints')||'0');
+    cur+=pts; sessionStorage.setItem('childPoints',cur);
+    const navEl=document.getElementById('navPoints');
+    if(navEl) navEl.textContent='⭐ '+cur+' pts';
+    if(pts>=10){ saveProgress(3, pts); }
+  }
+
+  document.getElementById('navPoints').textContent='⭐ '+(sessionStorage.getItem('childPoints')||'0')+' pts';
+  nextMatch();
+</script>
+</body>
+</html>

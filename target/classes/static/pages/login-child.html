@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutiLearn – Child Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .avatar-picker { display:flex; gap:.8rem; justify-content:center; margin:1rem 0 1.5rem; flex-wrap:wrap; }
+    .av { font-size:2.2rem; padding:.4rem; border-radius:50%; border:3px solid transparent;
+          cursor:pointer; transition:.2s; }
+    .av:hover { transform:scale(1.2); }
+    .av.selected { border-color:var(--pink); background:#fff0f7; transform:scale(1.15); }
+    .stars { font-size:2.5rem; text-align:center; margin-bottom:1rem; letter-spacing:.3rem; }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="../index.html" class="nav-logo">🌈 AutiLearn</a>
+  <div class="nav-links">
+    <a href="../index.html">🏠 Home</a>
+    <a href="login-parent.html">Parent Login</a>
+    <a href="register.html" class="nav-register">Register</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="card">
+    <div class="stars">⭐🌟⭐</div>
+    <h1 class="card-title">👦 Hello, I'm Back!</h1>
+    <p class="card-sub">Pick your avatar and enter your secret code!</p>
+
+    <div class="avatar-picker" id="avatarPicker">
+      <span class="av selected" data-av="1">🦁</span>
+      <span class="av" data-av="2">🐯</span>
+      <span class="av" data-av="3">🐸</span>
+      <span class="av" data-av="4">🐼</span>
+      <span class="av" data-av="5">🦊</span>
+      <span class="av" data-av="6">🐨</span>
+    </div>
+
+    <div id="alertBox"></div>
+
+    <div class="form-group">
+      <label>🏷️ My Username</label>
+      <input type="text" id="username" placeholder="e.g. sunny_star" autocomplete="off"/>
+    </div>
+    <div class="form-group">
+      <label>🔑 My Secret Code</label>
+      <input type="password" id="password" placeholder="Your password"/>
+    </div>
+    <button class="btn btn-primary mt-2" onclick="childLogin()">🚀 Let's Go!</button>
+    <div class="divider">or</div>
+    <p class="text-center" style="font-family:var(--font-body); color:var(--muted); font-size:.9rem;">
+      New here? Ask a parent to <a href="register.html" class="link">create your account</a>!
+    </p>
+  </div>
+</div>
+
+<script>
+  // Avatar selection
+  document.querySelectorAll('.av').forEach(el=>{
+    el.addEventListener('click',()=>{
+      document.querySelectorAll('.av').forEach(a=>a.classList.remove('selected'));
+      el.classList.add('selected');
+    });
+  });
+
+  function childLogin(){
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const alertBox = document.getElementById('alertBox');
+
+    if(!username || !password){
+      alertBox.innerHTML=`<div class="alert alert-error">⚠️ Please fill in both fields!</div>`;
+      return;
+    }
+
+    // Send to backend
+    fetch('/api/auth/child/login', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({username, password})
+    })
+    .then(r=>r.json())
+    .then(data=>{
+      if(data.success){
+        sessionStorage.setItem('childId', data.childId);
+        sessionStorage.setItem('childName', data.fullName || data.displayName);
+        sessionStorage.setItem('childAvatar', document.querySelector('.av.selected').textContent);
+        sessionStorage.setItem('childPoints', data.points || 0);
+        window.location.href = 'dashboard-child.html';
+      } else {
+        alertBox.innerHTML=`<div class="alert alert-error">❌ ${data.message || 'Wrong username or password!'}</div>`;
+      }
+    })
+    .catch(()=>{
+      // Demo mode fallback
+      if(username && password.length >= 3){
+        sessionStorage.setItem('childName', username);
+        sessionStorage.setItem('childAvatar', document.querySelector('.av.selected').textContent);
+        sessionStorage.setItem('childPoints', '120');
+        window.location.href = 'dashboard-child.html';
+      }
+    });
+  }
+
+  // Allow Enter key
+  document.addEventListener('keydown', e=>{ if(e.key==='Enter') childLogin(); });
+</script>
+</body>
+</html>

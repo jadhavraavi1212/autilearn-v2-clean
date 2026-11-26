@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutiLearn – Quick Quiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    body { background:linear-gradient(135deg,#fffde0,#fffdf9); min-height:100vh; }
+    .module-hero { text-align:center; padding:2rem;
+      background:linear-gradient(135deg,#ffd43b,#ffa94d); color:#fff; }
+    .module-hero h1 { font-family:var(--font-head); font-size:2.5rem; font-weight:800; }
+
+    .quiz-wrap { max-width:680px; margin:0 auto; padding:2rem; }
+
+    .progress-bar-wrap { height:12px; background:#eee; border-radius:50px; margin-bottom:1.5rem; overflow:hidden; }
+    .progress-bar-fill { height:100%; background:linear-gradient(90deg,#ffd43b,#ffa94d); border-radius:50px; transition:width .4s; }
+
+    .q-number { font-family:var(--font-head); font-size:.95rem; color:var(--muted); margin-bottom:.5rem; }
+    .q-card {
+      background:#fff; border-radius:28px; padding:2rem;
+      box-shadow:var(--shadow); margin-bottom:1.5rem;
+      animation:cardIn .4s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .q-emoji { font-size:3.5rem; margin-bottom:.8rem; }
+    .q-text  { font-family:var(--font-head); font-size:1.6rem; font-weight:700; color:var(--text); margin-bottom:1.5rem; }
+    .q-options { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; }
+    .q-opt {
+      padding:1rem; border-radius:16px; border:3px solid #e8e8e8;
+      font-family:var(--font-head); font-size:1.05rem; font-weight:700;
+      background:#fafafa; cursor:pointer; transition:.2s; text-align:center;
+    }
+    .q-opt:hover { border-color:var(--yellow); background:#fffde0; transform:scale(1.03); }
+    .q-opt.correct { border-color:var(--green); background:#ebfbee; color:var(--green); transform:scale(1.05); }
+    .q-opt.wrong   { border-color:#f03e3e; background:#fff0f3; color:#f03e3e; }
+    .q-feedback { text-align:center; font-family:var(--font-head); font-size:1.3rem; font-weight:700; min-height:2rem; margin-top:.8rem; }
+
+    .result-screen {
+      display:none; text-align:center; padding:2rem;
+      background:#fff; border-radius:28px; box-shadow:var(--shadow);
+    }
+    .result-screen.show { display:block; animation:cardIn .5s cubic-bezier(.34,1.56,.64,1) both; }
+    .result-emoji { font-size:5rem; margin-bottom:1rem; }
+    .result-score { font-family:var(--font-head); font-size:3rem; font-weight:800;
+      background:linear-gradient(135deg,var(--orange),var(--yellow));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .result-msg { font-family:var(--font-head); font-size:1.4rem; font-weight:700; color:var(--text); margin:.5rem 0; }
+    .result-sub { font-family:var(--font-body); color:var(--muted); margin-bottom:1.5rem; }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="dashboard-child.html" class="nav-logo">← Back</a>
+  <div class="nav-links">
+    <span class="score-badge">🏆 <span id="quizScore">0</span> pts this quiz</span>
+  </div>
+</nav>
+
+<div class="module-hero">
+  <h1>❓ Quick Quiz</h1>
+  <p>Answer questions about everything you've learned!</p>
+</div>
+
+<div class="quiz-wrap">
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="qProgress" style="width:0%"></div></div>
+  <div class="q-number" id="qNumber">Question 1 of 10</div>
+
+  <div class="q-card" id="qCard">
+    <div class="q-emoji" id="qEmoji">❓</div>
+    <div class="q-text"  id="qText">Loading…</div>
+    <div class="q-options" id="qOptions"></div>
+    <div class="q-feedback" id="qFeedback"></div>
+  </div>
+
+  <div class="result-screen" id="resultScreen">
+    <div class="result-emoji" id="resultEmoji">🎉</div>
+    <div class="result-score" id="resultScore">0 / 10</div>
+    <div class="result-msg"   id="resultMsg">Well done!</div>
+    <div class="result-sub"   id="resultSub">Keep learning and try again!</div>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-primary"   style="width:auto;padding:.7rem 2rem;" onclick="startQuiz()">🔃 Try Again</button>
+      <a href="dashboard-child.html" class="btn btn-secondary" style="width:auto;padding:.7rem 2rem;">🏠 Dashboard</a>
+    </div>
+  </div>
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+  const ALL_QUESTIONS=[
+    {e:'🍎',q:'What letter does Apple start with?',  opts:['A','B','C','D'],     ans:'A'},
+    {e:'🐶',q:'What letter does Dog start with?',    opts:['A','B','D','F'],     ans:'D'},
+    {e:'🔢',q:'What comes after 5?',                  opts:['4','6','7','8'],     ans:'6'},
+    {e:'🔢',q:'How many fingers on one hand?',        opts:['4','5','6','3'],     ans:'5'},
+    {e:'🔢',q:'What is 3 + 4?',                       opts:['6','7','8','9'],     ans:'7'},
+    {e:'🎨',q:'What color is the sky?',               opts:['Red','Blue','Green','Pink'],  ans:'Blue'},
+    {e:'🎨',q:'What color is grass?',                 opts:['Yellow','Blue','Green','Red'],ans:'Green'},
+    {e:'🎨',q:'What color is the sun?',               opts:['Blue','Orange','Yellow','Pink'],ans:'Yellow'},
+    {e:'🔷',q:'How many sides does a triangle have?', opts:['2','3','4','5'],     ans:'3'},
+    {e:'🔷',q:'What shape has no corners?',           opts:['Square','Rectangle','Triangle','Circle'],ans:'Circle'},
+    {e:'🔷',q:'How many sides does a square have?',   opts:['3','5','4','6'],     ans:'4'},
+    {e:'🌈',q:'Which is NOT a color of the rainbow?', opts:['Red','Pink','Blue','Green'],  ans:'Pink'},
+    {e:'⭐',q:'What shape is a star?',                opts:['Round','Pointed','Square','Flat'],ans:'Pointed'},
+    {e:'🍊',q:'What color is an orange?',             opts:['Red','Yellow','Orange','Green'],ans:'Orange'},
+    {e:'🐱',q:'What letter does Cat start with?',     opts:['A','B','C','K'],     ans:'C'},
+  ];
+
+  let questions=[], idx=0, quizScore=0;
+
+  function startQuiz(){
+    questions=[...ALL_QUESTIONS].sort(()=>Math.random()-.5).slice(0,10);
+    idx=0; quizScore=0;
+    document.getElementById('resultScreen').classList.remove('show');
+    document.getElementById('qCard').style.display='block';
+    document.getElementById('qNumber').style.display='block';
+    document.getElementById('qProgress').style.display='block';
+    document.getElementById('quizScore').textContent='0';
+    showQuestion();
+  }
+
+  function showQuestion(){
+    const q=questions[idx];
+    document.getElementById('qNumber').textContent=`Question ${idx+1} of ${questions.length}`;
+    document.getElementById('qProgress').style.width=(idx/questions.length*100)+'%';
+    document.getElementById('qEmoji').textContent=q.e;
+    document.getElementById('qText').textContent=q.q;
+    document.getElementById('qFeedback').textContent='';
+
+    const opts=document.getElementById('qOptions');
+    opts.innerHTML='';
+    q.opts.forEach(opt=>{
+      const b=document.createElement('button');
+      b.className='q-opt'; b.textContent=opt;
+      b.onclick=()=>answer(opt,b,q.ans);
+      opts.appendChild(b);
+    });
+  }
+
+  function answer(val,btn,correct){
+    document.querySelectorAll('.q-opt').forEach(o=>o.disabled=true);
+    const fb=document.getElementById('qFeedback');
+    if(val===correct){
+      btn.classList.add('correct');
+      fb.textContent='🎉 Correct! Awesome!';
+      quizScore+=10;
+      document.getElementById('quizScore').textContent=quizScore;
+      speak('Correct! Great job!');
+      awardPoints(10);
+    } else {
+      btn.classList.add('wrong');
+      document.querySelectorAll('.q-opt').forEach(o=>{
+        if(o.textContent===correct) o.classList.add('correct');
+      });
+      fb.textContent='❌ The answer was '+correct+'!';
+      speak('The answer was '+correct);
+    }
+    setTimeout(()=>{
+      idx++;
+      if(idx<questions.length){ showQuestion(); }
+      else { showResult(); }
+    },1500);
+  }
+
+  function showResult(){
+    document.getElementById('qCard').style.display='none';
+    document.getElementById('qNumber').style.display='none';
+    document.getElementById('qProgress').style.display='none';
+    const pct=quizScore/100;
+    let emoji='😊',msg='Good Try!',sub='Keep practicing and you\'ll do even better!';
+    if(pct>=0.9){ emoji='🏆'; msg='Outstanding!'; sub='You\'re a quiz champion! 🎉'; }
+    else if(pct>=0.7){ emoji='🌟'; msg='Great Job!'; sub='You know so much! Keep it up!'; }
+    else if(pct>=0.5){ emoji='😊'; msg='Nice Work!'; sub='A little more practice and you\'ll ace it!'; }
+    document.getElementById('resultEmoji').textContent=emoji;
+    document.getElementById('resultScore').textContent=quizScore+' / 100';
+    document.getElementById('resultMsg').textContent=msg;
+    document.getElementById('resultSub').textContent=sub;
+    document.getElementById('resultScreen').classList.add('show');
+    speak(msg+' You scored '+quizScore+' out of 100!');
+    if(pct>=0.5) awardPoints(25);
+  }
+
+  function speak(text){
+    const u=new SpeechSynthesisUtterance(text);
+    u.rate=0.85; u.pitch=1.2; window.speechSynthesis.speak(u);
+  }
+  function awardPoints(pts){
+    let cur=parseInt(sessionStorage.getItem('childPoints')||'0');
+    cur+=pts; sessionStorage.setItem('childPoints',cur);
+    const navEl=document.getElementById('navPoints');
+    if(navEl) navEl.textContent='⭐ '+cur+' pts';
+    if(pts>=10){ saveProgress(6, pts); }
+  }
+
+  startQuiz();
+</script>
+</body>
+</html>
